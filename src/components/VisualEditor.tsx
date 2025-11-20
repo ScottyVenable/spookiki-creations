@@ -28,6 +28,21 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
+import { v4 as uuidv4 } from 'uuid'
+
+// Constants for viewport breakpoints
+const VIEWPORT_WIDTHS = {
+  mobile: '375px',
+  tablet: '768px',
+  desktop: '100%'
+} as const
+
+// Default content for new elements
+const DEFAULT_ELEMENT_CONTENT = {
+  text: 'New text element',
+  image: 'https://via.placeholder.com/400x300',
+  button: 'Click me'
+} as const
 
 interface EditableElement {
   id: string
@@ -259,9 +274,9 @@ export function VisualEditor() {
   const addElement = (sectionId: string, type: 'text' | 'image' | 'button') => {
     saveState()
     const newElement: EditableElement = {
-      id: `${type}-${Date.now()}`,
+      id: `${type}-${uuidv4()}`,
       type,
-      content: type === 'text' ? 'New text element' : type === 'image' ? 'https://via.placeholder.com/400x300' : 'Click me',
+      content: DEFAULT_ELEMENT_CONTENT[type],
       styles: {
         fontSize: type === 'button' ? '16px' : '18px',
         fontWeight: type === 'button' ? '600' : 'normal',
@@ -298,12 +313,7 @@ export function VisualEditor() {
   const selectedData = getSelectedElement()
 
   const getPreviewWidth = () => {
-    switch (localState.previewMode) {
-      case 'mobile': return '375px'
-      case 'tablet': return '768px'
-      case 'desktop': return '100%'
-      default: return '100%'
-    }
+    return VIEWPORT_WIDTHS[localState.previewMode]
   }
 
   return (

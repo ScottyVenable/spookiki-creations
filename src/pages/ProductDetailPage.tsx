@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ProductCard } from '@/components/ProductCard'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Product, CartItem } from '@/lib/types'
 import { sampleProducts, formatPrice } from '@/lib/data'
 import { Plus, Minus, ShoppingCart, Package } from '@phosphor-icons/react'
@@ -14,8 +14,8 @@ import { toast } from 'sonner'
 const BASE_PATH = '/spookiki-creations'
 
 export default function ProductDetailPage() {
-  const [products] = useKV<Product[]>('products', sampleProducts)
-  const [cart, setCart] = useKV<CartItem[]>('cart', [])
+  const [products] = useLocalStorage<Product[]>('products', sampleProducts)
+  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', [])
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
 

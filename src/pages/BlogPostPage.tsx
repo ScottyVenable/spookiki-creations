@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { BlogPost } from '@/lib/types'
 import { sampleBlogPosts } from '@/lib/data'
 import { ArrowLeft, Calendar } from '@phosphor-icons/react'
@@ -9,7 +9,7 @@ import { ArrowLeft, Calendar } from '@phosphor-icons/react'
 const BASE_PATH = '/spookiki-creations'
 
 export default function BlogPostPage() {
-  const [blogPosts] = useKV<BlogPost[]>('blog_posts', sampleBlogPosts)
+  const [blogPosts] = useLocalStorage<BlogPost[]>('blog_posts', sampleBlogPosts)
 
   const pathname = window.location.pathname.replace(BASE_PATH, '')
   const slug = pathname.split('/blog/')[1]

@@ -7,15 +7,15 @@ import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { CartItem, Order, PaymentMethod } from '@/lib/types'
 import { formatPrice, generateOrderId } from '@/lib/data'
 import { ShoppingBag, CreditCard } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 export default function CheckoutPage() {
-  const [cart, setCart] = useKV<CartItem[]>('cart', [])
-  const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', [])
+  const [orders, setOrders] = useLocalStorage<Order[]>('orders', [])
   
   const [formData, setFormData] = useState({
     email: '',

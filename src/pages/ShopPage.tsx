@@ -3,7 +3,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Product, ProductCategory } from '@/lib/types'
 import { sampleProducts } from '@/lib/data'
 import { FunnelSimple } from '@phosphor-icons/react'
@@ -11,7 +11,7 @@ import { FunnelSimple } from '@phosphor-icons/react'
 const BASE_PATH = '/spookiki-creations'
 
 export default function ShopPage() {
-  const [products] = useKV<Product[]>('products', sampleProducts)
+  const [products] = useLocalStorage<Product[]>('products', sampleProducts)
   const [category, setCategory] = useState<ProductCategory | 'all'>('all')
   const [sortBy, setSortBy] = useState('newest')
   const [selectedTags, setSelectedTags] = useState<string[]>([])

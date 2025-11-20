@@ -16,11 +16,16 @@ export function useLocalStorage<T = string>(
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState<T | undefined>(() => {
+    // Check if window is available (client-side only)
+    if (typeof window === 'undefined') {
+      return initialValue
+    }
+    
     try {
       // Get from local storage by key
       const item = window.localStorage.getItem(key)
       // Parse stored json or return initialValue
-      return item ? JSON.parse(item) : initialValue
+      return item !== null ? JSON.parse(item) : initialValue
     } catch (error) {
       // If error, return initialValue
       console.error(`Error reading localStorage key "${key}":`, error)
@@ -33,11 +38,13 @@ export function useLocalStorage<T = string>(
     (value: T | ((oldValue?: T) => T)) => {
       try {
         // Allow value to be a function so we have same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value
+        const valueToStore = typeof value === 'function' ? (value as (oldValue?: T) => T)(storedValue) : value
         // Save state
         setStoredValue(valueToStore)
         // Save to local storage
-        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore))
+        }
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error)
       }
@@ -48,7 +55,9 @@ export function useLocalStorage<T = string>(
   // Function to delete the value from localStorage
   const deleteValue = useCallback(() => {
     try {
-      window.localStorage.removeItem(key)
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(key)
+      }
       setStoredValue(undefined)
     } catch (error) {
       console.error(`Error deleting localStorage key "${key}":`, error)
@@ -57,6 +66,10 @@ export function useLocalStorage<T = string>(
 
   // Listen for changes to this key from other tabs/windows
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === key && e.newValue !== null) {
         try {

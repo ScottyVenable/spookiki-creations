@@ -180,7 +180,7 @@ export function AdminProductsTab() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] md:w-full">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? 'Edit Product' : 'Create New Product'}
@@ -188,8 +188,8 @@ export function AdminProductsTab() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="name">Product Name *</Label>
                 <Input
                   id="name"
@@ -199,7 +199,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -210,7 +210,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="price">Price *</Label>
                 <Input
                   id="price"
@@ -222,7 +222,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="stock">Stock Quantity</Label>
                 <Input
                   id="stock"
@@ -233,7 +233,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.category || 'other'}
@@ -251,7 +251,7 @@ export function AdminProductsTab() {
                 </Select>
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status || 'draft'}
@@ -268,7 +268,7 @@ export function AdminProductsTab() {
                 </Select>
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="material">Material</Label>
                 <Input
                   id="material"
@@ -278,7 +278,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="gemstone">Gemstone</Label>
                 <Input
                   id="gemstone"
@@ -288,7 +288,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="gemstone-meaning">Gemstone Meaning</Label>
                 <Textarea
                   id="gemstone-meaning"
@@ -299,7 +299,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="tags">Tags (comma-separated)</Label>
                 <Input
                   id="tags"
@@ -312,13 +312,14 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
-                <div className="flex items-center justify-between mb-2">
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                   <Label>Product Images</Label>
-                  <div className="flex gap-2 flex-1 max-w-md ml-4">
+                  <div className="flex gap-2 w-full md:flex-1 md:max-w-md">
                     <Input
                       id="image-url"
                       placeholder="Enter image URL"
+                      className="flex-1"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
@@ -340,7 +341,7 @@ export function AdminProductsTab() {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(formData.images || []).map((url, index) => (
                     <div key={index} className="relative group">
                       <img src={url} alt="" className="w-full h-24 object-cover rounded-lg" />
@@ -358,7 +359,7 @@ export function AdminProductsTab() {
                 </div>
               </div>
 
-              <div className="col-span-2 flex items-center gap-2">
+              <div className="col-span-1 md:col-span-2 flex items-center gap-2">
                 <Switch
                   id="featured"
                   checked={formData.is_featured || false}

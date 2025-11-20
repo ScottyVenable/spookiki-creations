@@ -77,44 +77,44 @@ export default function AdminPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Pending Payment</span>
-              <Package className="h-5 w-5 text-muted-foreground" />
+              <span className="text-xs md:text-sm text-muted-foreground">Pending Payment</span>
+              <Package className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold">{pendingOrders.length}</div>
+            <div className="text-2xl md:text-3xl font-bold">{pendingOrders.length}</div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Paid Orders</span>
-              <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+              <span className="text-xs md:text-sm text-muted-foreground">Paid Orders</span>
+              <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold">{paidOrders.length}</div>
+            <div className="text-2xl md:text-3xl font-bold">{paidOrders.length}</div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Total Revenue</span>
-              <CurrencyDollar className="h-5 w-5 text-muted-foreground" />
+              <span className="text-xs md:text-sm text-muted-foreground">Total Revenue</span>
+              <CurrencyDollar className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold">{formatPrice(totalRevenue)}</div>
+            <div className="text-xl md:text-3xl font-bold">{formatPrice(totalRevenue)}</div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Active Products</span>
-              <Sparkle className="h-5 w-5 text-muted-foreground" />
+              <span className="text-xs md:text-sm text-muted-foreground">Active Products</span>
+              <Sparkle className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold">
+            <div className="text-2xl md:text-3xl font-bold">
               {allProducts.filter(p => p.status === 'active').length}
             </div>
           </Card>
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="website">Website</TabsTrigger>

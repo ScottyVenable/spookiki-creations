@@ -1,19 +1,42 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { OrderStatusBadge } from '@/components/OrderStatusBadge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Link } from '@/components/Link'
 import { useKV } from '@github/spark/hooks'
-import type { Order, Product, OrderStatus } from '@/lib/types'
+import { useAuth } from '@/contexts/AuthContext'
+import type { Order, Product } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
-import { Package, ShoppingCart, CurrencyDollar, Sparkle } from '@phosphor-icons/react'
+import { Package, ShoppingCart, CurrencyDollar, Sparkle, House, SignOut } from '@phosphor-icons/react'
+import { AdminProductsTab } from '@/components/AdminProductsTab'
+import { AdminOrdersTab } from '@/components/AdminOrdersTab'
+import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
 
 export default function AdminPage() {
-  const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const [orders] = useKV<Order[]>('orders', [])
   const [products] = useKV<Product[]>('products', [])
+  const { currentUser, isAdmin, logout } = useAuth()
+
+  useEffect(() => {
+    if (!isAdmin) {
+      window.history.pushState({}, '', '/')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    }
+  }, [isAdmin])
+
+  if (!currentUser || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="p-8 max-w-md text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-muted-foreground mb-6">You must be an admin to access this page.</p>
+          <Link href="/">
+            <Button>Return Home</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
 
   const allOrders = orders || []
   const allProducts = products || []
@@ -24,28 +47,31 @@ export default function AdminPage() {
     .filter(o => o.status === 'paid' || o.status === 'shipped')
     .reduce((sum, o) => sum + o.total, 0)
 
-  const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
-    setOrders((currentOrders) => {
-      const safeOrders = currentOrders || []
-      return safeOrders.map(order =>
-        order.id === orderId
-          ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
-          : order
-      )
-    })
-  }
-
   return (
     <div className="min-h-screen bg-muted/30">
-      <header className="bg-background border-b border-border">
+      <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Nunito, sans-serif' }}>
-              Spookiki Admin
-            </h1>
-            <Link href="/">
-              <Button variant="outline">View Store</Button>
-            </Link>
+            <div>
+              <h1 className="text-2xl font-bold" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                Spookiki Admin
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Welcome back, {currentUser.name}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <Button variant="outline">
+                  <House className="mr-2 h-4 w-4" />
+                  View Store
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={logout}>
+                <SignOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -88,125 +114,22 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList>
+          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="website">Website</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Nunito, sans-serif' }}>
-                All Orders
-              </h2>
-
-              {allOrders.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  No orders yet
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {allOrders
-                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                    .map((order) => (
-                      <div key={order.id} className="border border-border rounded-lg p-4">
-                        <div className="grid md:grid-cols-5 gap-4 items-center">
-                          <div>
-                            <div className="font-semibold">#{order.id}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-
-                          <div>
-                            <div className="text-sm font-medium">{order.shipping_name}</div>
-                            <div className="text-sm text-muted-foreground">{order.email}</div>
-                          </div>
-
-                          <div>
-                            <div className="text-sm text-muted-foreground">
-                              {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                            </div>
-                            <div className="font-medium">{formatPrice(order.total)}</div>
-                          </div>
-
-                          <div>
-                            <Select
-                              value={order.status}
-                              onValueChange={(value) => updateOrderStatus(order.id, value as OrderStatus)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="awaiting_payment">Awaiting Payment</SelectItem>
-                                <SelectItem value="paid">Paid</SelectItem>
-                                <SelectItem value="shipped">Shipped</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                window.history.pushState({}, '', `/order/${order.id}/confirmation`)
-                                window.dispatchEvent(new PopStateEvent('popstate'))
-                              }}
-                            >
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </Card>
+            <AdminOrdersTab />
           </TabsContent>
 
           <TabsContent value="products">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold" style={{ fontFamily: 'Nunito, sans-serif' }}>
-                  All Products
-                </h2>
-                <Button>Add Product</Button>
-              </div>
+            <AdminProductsTab />
+          </TabsContent>
 
-              <div className="space-y-4">
-                {allProducts.map((product) => (
-                  <div key={product.id} className="flex items-center gap-4 border border-border rounded-lg p-4">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="font-semibold">{product.name}</div>
-                      <div className="text-sm text-muted-foreground">{product.category}</div>
-                    </div>
-
-                    <div className="text-right">
-                      <div className="font-medium">{formatPrice(product.price)}</div>
-                      <div className="text-sm text-muted-foreground">Stock: {product.stock_quantity}</div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {product.is_featured && <Badge variant="default">Featured</Badge>}
-                      <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
-                        {product.status}
-                      </Badge>
-                    </div>
-
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </Card>
+          <TabsContent value="website">
+            <AdminWebsiteTab />
           </TabsContent>
         </Tabs>
       </div>

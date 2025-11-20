@@ -1,21 +1,190 @@
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { OrderStatusBadge } from '@/components/OrderStatusBadge'
 import { Link } from '@/components/Link'
 import { useKV } from '@github/spark/hooks'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Order } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
-import { Package, User, ShoppingBag } from '@phosphor-icons/react'
+import { Package, User, ShoppingBag, SignIn, LockKey } from '@phosphor-icons/react'
+import { toast } from 'sonner'
 
 export default function AccountPage() {
   const [orders] = useKV<Order[]>('orders', [])
+  const { currentUser, login, logout, changePassword } = useAuth()
+  const [loginUsername, setLoginUsername] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const currentPath = window.location.pathname
+  const isSettingsPage = currentPath.includes('/settings')
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    const success = login(loginUsername, loginPassword)
+    if (success) {
+      toast.success('Welcome back!')
+      setLoginUsername('')
+      setLoginPassword('')
+    } else {
+      toast.error('Invalid username or password')
+    }
+  }
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+    changePassword(newPassword)
+    toast.success('Password changed successfully')
+    setNewPassword('')
+    setConfirmPassword('')
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4 max-w-md">
+          <Card className="p-8">
+            <div className="text-center mb-6">
+              <SignIn className="h-12 w-12 text-primary mx-auto mb-4" />
+              <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                Welcome Back
+              </h1>
+              <p className="text-muted-foreground">
+                Sign in to view your account
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={loginUsername}
+                  onChange={(e) => setLoginUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              <Button type="submit" className="w-full">
+                Sign In
+              </Button>
+            </form>
+
+            <Separator className="my-6" />
+
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Demo Accounts:</p>
+              <p className="mt-2">Admin: spookiki / welcome123</p>
+              <p>Admin: Scotty2Hotty999 / SVen!8019</p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  if (isSettingsPage) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <Link href="/account">
+            <Button variant="ghost" className="mb-6">← Back to Account</Button>
+          </Link>
+
+          <h1 className="text-4xl font-bold mb-8" style={{ fontFamily: 'Nunito, sans-serif' }}>
+            Account Settings
+          </h1>
+
+          <div className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                Profile Information
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={currentUser.name} disabled />
+                </div>
+                <div>
+                  <Label>Username</Label>
+                  <Input value={currentUser.username} disabled />
+                </div>
+                <div>
+                  <Label>Role</Label>
+                  <Input value={currentUser.role} disabled className="capitalize" />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                Change Password
+              </h2>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    required
+                  />
+                </div>
+                <Button type="submit">
+                  <LockKey className="mr-2 h-4 w-4" />
+                  Update Password
+                </Button>
+              </form>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const userOrders = (orders || []).sort((a, b) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
-
-  const currentPath = window.location.pathname
 
   if (currentPath.includes('/orders/')) {
     const orderId = currentPath.split('/orders/')[1]
@@ -109,13 +278,20 @@ export default function AccountPage() {
     <div className="py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
-              My Account
-            </h1>
-            <p className="text-muted-foreground">
-              View your orders and account information
-            </p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                My Account
+              </h1>
+              <p className="text-muted-foreground">
+                Welcome back, {currentUser.name}!
+              </p>
+            </div>
+            <Link href="/account/settings">
+              <Button variant="outline">
+                Settings
+              </Button>
+            </Link>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -135,7 +311,7 @@ export default function AccountPage() {
 
             <Card className="p-6 text-center">
               <User className="h-10 w-10 text-primary mx-auto mb-3" weight="fill" />
-              <div className="text-2xl font-bold mb-1">Guest</div>
+              <div className="text-2xl font-bold mb-1 capitalize">{currentUser.role}</div>
               <div className="text-sm text-muted-foreground">Account Type</div>
             </Card>
           </div>

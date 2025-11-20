@@ -12,6 +12,13 @@ A handmade marketplace for spooky-cute art, ornaments, and gemstone clay snakes 
 
 ## Essential Features
 
+### User Authentication & Account Management
+- **Functionality**: Secure login system with role-based access control (admin/customer), password management
+- **Purpose**: Enable personalized experiences and restrict admin functionality to authorized users
+- **Trigger**: User clicks "Login" button in header or navigates to /account
+- **Progression**: Account Page → Enter Credentials → Authenticate → Dashboard/Admin Panel
+- **Success criteria**: Admins can access admin panel, users can change passwords, secure session management, login persists between sessions
+
 ### Product Browsing & Discovery
 - **Functionality**: Browse products by category (Art, Ornaments, Snakes), filter by tags, view detailed product pages
 - **Purpose**: Help customers discover unique handmade pieces that resonate with them
@@ -34,11 +41,18 @@ A handmade marketplace for spooky-cute art, ornaments, and gemstone clay snakes 
 - **Success criteria**: Returning customers can quickly check order status, registration is optional not required
 
 ### Admin Product Management
-- **Functionality**: CRUD operations for products including images, pricing, categories, gemstone meanings, stock levels
+- **Functionality**: Full CRUD operations for products including multiple images, pricing, categories, gemstone meanings, stock levels, featured status, and status management (active/draft/archived)
 - **Purpose**: Give Kiki complete control over her inventory and product presentation
-- **Trigger**: Admin navigates to /admin/products
-- **Progression**: Product List → Create/Edit Product → Upload Images → Set Details & Pricing → Publish → Featured Toggle
-- **Success criteria**: Can add new product in under 2 minutes, image upload is drag-drop, can mark products as featured or out of stock
+- **Trigger**: Admin navigates to /admin → Products tab
+- **Progression**: Product List → Create/Edit Product → Upload Multiple Images (URL) → Set Details & Pricing → Set Category/Status/Featured → Save → View in Product Grid
+- **Success criteria**: Can add new product with all fields in under 2 minutes, can add/remove multiple product images, can toggle featured status, can set stock quantity and track inventory, changes reflect immediately on storefront
+
+### Admin Website Customization
+- **Functionality**: Edit site settings including site name, tagline, contact info, social links, hero content, about text, and policies
+- **Purpose**: Allow full website customization without code changes
+- **Trigger**: Admin navigates to /admin → Website tab
+- **Progression**: Website Settings → Select Category (General/Content/Policies) → Edit Fields → Save All Settings
+- **Success criteria**: All website text can be customized, settings persist between sessions, changes are non-destructive
 
 ### Admin Order Fulfillment
 - **Functionality**: View orders, filter by status, update payment/shipping status, view customer details

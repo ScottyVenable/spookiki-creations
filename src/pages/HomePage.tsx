@@ -7,11 +7,16 @@ import { ArrowRight, Sparkle } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import type { Product, BlogPost } from '@/lib/types'
 import { sampleProducts, sampleBlogPosts } from '@/lib/data'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import type { NewsletterSubscriber } from '@/lib/notifications'
+import { toast } from 'sonner'
 
 export default function HomePage() {
   const [products, setProducts] = useKV<Product[]>('products', [])
   const [blogPosts, setBlogPosts] = useKV<BlogPost[]>('blog_posts', [])
+  const [subscribers, setSubscribers] = useKV<NewsletterSubscriber[]>('newsletter_subscribers', [])
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [isSubscribing, setIsSubscribing] = useState(false)
 
   useEffect(() => {
     if (!products || products.length === 0) {
@@ -24,6 +29,42 @@ export default function HomePage() {
 
   const featuredProducts = (products || sampleProducts).filter(p => p.is_featured && p.status === 'active').slice(0, 4)
   const recentPosts = (blogPosts || sampleBlogPosts).filter(p => p.status === 'published').slice(0, 3)
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    setIsSubscribing(true)
+
+    try {
+      // Check if already subscribed
+      const existingSubscribers = subscribers || []
+      if (existingSubscribers.some(sub => sub.email === newsletterEmail)) {
+        toast.info('You\'re already subscribed to the newsletter!')
+        setNewsletterEmail('')
+        return
+      }
+
+      // Add new subscriber
+      const newSubscriber: NewsletterSubscriber = {
+        email: newsletterEmail,
+        subscribedAt: new Date().toISOString(),
+        source: 'homepage'
+      }
+
+      setSubscribers([...existingSubscribers, newSubscriber])
+      toast.success('Thanks for subscribing! You\'re part of the Spookiki Circle now! ✨')
+      setNewsletterEmail('')
+    } catch (error) {
+      toast.error('Failed to subscribe. Please try again.')
+    } finally {
+      setIsSubscribing(false)
+    }
+  }
 
   return (
     <div>
@@ -237,16 +278,19 @@ export default function HomePage() {
                 Get early access to limited drops, studio updates, and exclusive behind-the-scenes content.
                 Plus, be the first to know about new crystal snake releases!
               </p>
-              <div className="flex gap-4 max-w-md mx-auto">
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-4 max-w-md mx-auto">
                 <input
                   type="email"
                   placeholder="Your email address"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  required
                   className="flex-1 px-4 py-3 rounded-lg border border-border bg-background"
                 />
-                <Button size="lg">
-                  Subscribe
+                <Button type="submit" size="lg" disabled={isSubscribing}>
+                  {isSubscribing ? 'Subscribing...' : 'Subscribe'}
                 </Button>
-              </div>
+              </form>
             </div>
           </Card>
         </div>

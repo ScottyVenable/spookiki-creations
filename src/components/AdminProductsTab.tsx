@@ -21,6 +21,12 @@ type ProductFormData = Omit<Partial<Product>, 'price' | 'stock_quantity'> & {
   stock_quantity?: number | string
 }
 
+// Form data type that allows string values for number fields during editing
+type ProductFormData = Omit<Partial<Product>, 'price' | 'stock_quantity'> & {
+  price?: number | string
+  stock_quantity?: number | string
+}
+
 export function AdminProductsTab() {
   const [products, setProducts] = useKV<Product[]>('products', [])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)

@@ -14,11 +14,17 @@ import { formatPrice } from '@/lib/data'
 import { Plus, Pencil, Trash, Image as ImageIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
+// Form data type that allows string values for number fields during editing
+type ProductFormData = Omit<Partial<Product>, 'price' | 'stock_quantity'> & {
+  price?: number | string
+  stock_quantity?: number | string
+}
+
 export function AdminProductsTab() {
   const [products, setProducts] = useKV<Product[]>('products', [])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formData, setFormData] = useState<Partial<Product>>({})
+  const [formData, setFormData] = useState<ProductFormData>({})
 
   const allProducts = products || []
 
@@ -45,19 +51,40 @@ export function AdminProductsTab() {
   }
 
   const handleSaveProduct = () => {
-    if (!formData.name || !formData.price) {
+    if (!formData.name || formData.price === undefined || formData.price === '') {
       toast.error('Please fill in required fields')
+      return
+    }
+
+    // Parse numeric values from string inputs
+    const price = typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price
+    const stock_quantity = typeof formData.stock_quantity === 'string' ? parseInt(formData.stock_quantity, 10) : (formData.stock_quantity ?? 0)
+
+    // Validate numeric values
+    if (isNaN(price) || price < 0) {
+      toast.error('Please enter a valid price')
+      return
+    }
+
+    if (isNaN(stock_quantity) || stock_quantity < 0) {
+      toast.error('Please enter a valid stock quantity')
       return
     }
 
     const now = new Date().toISOString()
     const slug = formData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ''
 
+    const productData = {
+      ...formData,
+      price,
+      stock_quantity
+    }
+
     if (editingProduct) {
       setProducts((current) => {
         const updated = (current || []).map(p =>
           p.id === editingProduct.id
-            ? { ...formData as Product, slug, updated_at: now }
+            ? { ...productData as Product, slug, updated_at: now }
             : p
         )
         return updated
@@ -65,7 +92,7 @@ export function AdminProductsTab() {
       toast.success('Product updated')
     } else {
       const newProduct: Product = {
-        ...formData as Product,
+        ...productData as Product,
         id: Date.now().toString(),
         slug,
         created_at: now,
@@ -203,7 +230,7 @@ export function AdminProductsTab() {
                   step="0.01"
                   min="0"
                   value={formData.price ?? ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                 />
               </div>
 
@@ -214,7 +241,7 @@ export function AdminProductsTab() {
                   type="number"
                   min="0"
                   value={formData.stock_quantity ?? ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: e.target.value === '' ? 0 : parseInt(e.target.value) }))}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: e.target.value }))}
                 />
               </div>
 

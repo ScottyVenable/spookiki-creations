@@ -1,34 +1,15 @@
-import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { toast } from 'sonner'
 
 /**
- * Enhanced KV hook with error handling and loading states
+ * Enhanced KV hook - basic wrapper around useKV for consistency
+ * Note: KV operations are synchronous, so error handling happens at the storage layer
  */
-export function useKVWithFeedback<T>(
+export function useKVSafe<T>(
   key: string,
   initialValue: T
-): [T | null, (value: T | ((current: T | null) => T)) => void, boolean, Error | null] {
+): [T | null, (value: T | ((current: T | null) => T)) => void] {
   const [data, setData] = useKV<T>(key, initialValue)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
-
-  const setDataWithFeedback = (value: T | ((current: T | null) => T)) => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      setData(value)
-      setLoading(false)
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to save data')
-      setError(error)
-      toast.error(`Failed to save: ${error.message}`)
-      setLoading(false)
-    }
-  }
-
-  return [data, setDataWithFeedback, loading, error]
+  return [data, setData]
 }
 
 /**

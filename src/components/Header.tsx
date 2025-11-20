@@ -16,6 +16,11 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
+  
+  const handleLogout = () => {
+    logout()
+    closeMobileMenu()
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -95,7 +100,7 @@ export function Header() {
                         My Account
                       </Link>
                     </SheetClose>
-                    <Button variant="outline" onClick={() => { logout(); closeMobileMenu(); }} className="justify-start">
+                    <Button variant="outline" onClick={handleLogout} className="justify-start">
                       <SignOut className="mr-2 h-4 w-4" />
                       Sign Out
                     </Button>

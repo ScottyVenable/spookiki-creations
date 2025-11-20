@@ -144,10 +144,10 @@ export function AdminProductsTab() {
                   {product.updated_by && (
                     <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                       <User className="h-3 w-3" />
-                      {product.created_by === product.updated_by ? (
+                      {product.created_at === product.updated_at ? (
                         <span>Created by {product.created_by}</span>
                       ) : (
-                        <span>Updated by {product.updated_by}</span>
+                        <span>Last updated by {product.updated_by}</span>
                       )}
                     </div>
                   )}
@@ -315,7 +315,7 @@ export function AdminProductsTab() {
               <div className="col-span-1 md:col-span-2">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                   <Label>Product Images</Label>
-                  <div className="flex gap-2 w-full md:flex-1 md:max-w-md">
+                  <div className="flex gap-2 w-full md:w-auto md:min-w-[300px]">
                     <Input
                       id="image-url"
                       placeholder="Enter image URL"

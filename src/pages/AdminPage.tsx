@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -11,6 +10,7 @@ import { Package, ShoppingCart, CurrencyDollar, Sparkle, House, SignOut } from '
 import { AdminProductsTab } from '@/components/AdminProductsTab'
 import { AdminOrdersTab } from '@/components/AdminOrdersTab'
 import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
+import { VisualEditor } from '@/components/VisualEditor'
 
 export default function AdminPage() {
   const [orders] = useKV<Order[]>('orders', [])
@@ -114,10 +114,11 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3">
+          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-4">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="website">Website</TabsTrigger>
+            <TabsTrigger value="design">Design Editor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -130,6 +131,10 @@ export default function AdminPage() {
 
           <TabsContent value="website">
             <AdminWebsiteTab />
+          </TabsContent>
+
+          <TabsContent value="design">
+            <VisualEditor />
           </TabsContent>
         </Tabs>
       </div>

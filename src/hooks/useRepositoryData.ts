@@ -7,9 +7,15 @@ import { useState, useEffect, useCallback } from 'react'
  * - Admin modifications are stored in localStorage (session-specific)
  * - Merges both sources, with localStorage taking precedence
  * 
+ * Note: This hook stores the complete modified dataset in localStorage (not just diffs).
+ * This is intentional to match the existing admin panel workflow where the entire
+ * product/blog list is updated on each modification.
+ * 
  * @param dataUrl - URL to the JSON file in the repository (e.g., '/data/products.json')
  * @param localStorageKey - Key for localStorage to store admin modifications
  * @returns An array containing the merged data, a setter function, and a delete function
+ * 
+ * @template T - Data type must have an `id: string` property for merging logic
  */
 export function useRepositoryData<T extends { id: string }>(
   dataUrl: string,

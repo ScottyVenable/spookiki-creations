@@ -6,16 +6,19 @@ import { Link } from '@/components/Link'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Order, Product } from '@/lib/types'
+import type { NewsletterSubscriber } from '@/lib/notifications'
 import { formatPrice } from '@/lib/data'
-import { Package, ShoppingCart, CurrencyDollar, Sparkle, House, SignOut } from '@phosphor-icons/react'
+import { Package, ShoppingCart, CurrencyDollar, Sparkle, House, SignOut, EnvelopeSimple } from '@phosphor-icons/react'
 import { AdminProductsTab } from '@/components/AdminProductsTab'
 import { AdminOrdersTab } from '@/components/AdminOrdersTab'
 import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
 import { VisualEditor } from '@/components/VisualEditor'
+import { toast } from 'sonner'
 
 export default function AdminPage() {
   const [orders] = useKV<Order[]>('orders', [])
   const [products] = useKV<Product[]>('products', [])
+  const [subscribers] = useKV<NewsletterSubscriber[]>('newsletter_subscribers', [])
   const { currentUser, isAdmin, logout } = useAuth()
 
   useEffect(() => {
@@ -105,19 +108,18 @@ export default function AdminPage() {
 
           <Card className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Active Products</span>
-              <Sparkle className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Newsletter Subs</span>
+              <EnvelopeSimple className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold">
-              {allProducts.filter(p => p.status === 'active').length}
-            </div>
+            <div className="text-3xl font-bold">{(subscribers || []).length}</div>
           </Card>
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-4">
+          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-5">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
             <TabsTrigger value="website">Website</TabsTrigger>
             <TabsTrigger value="design">Design Editor</TabsTrigger>
           </TabsList>
@@ -128,6 +130,63 @@ export default function AdminPage() {
 
           <TabsContent value="products">
             <AdminProductsTab />
+          </TabsContent>
+
+          <TabsContent value="newsletter">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                Newsletter Subscribers ({(subscribers || []).length})
+              </h2>
+              
+              {!subscribers || subscribers.length === 0 ? (
+                <div className="text-center py-12">
+                  <EnvelopeSimple className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No subscribers yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-3 px-4 font-semibold">Email</th>
+                          <th className="text-left py-3 px-4 font-semibold">Source</th>
+                          <th className="text-left py-3 px-4 font-semibold">Subscribed</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {subscribers.map((sub, idx) => (
+                          <tr key={idx} className="border-b border-border hover:bg-muted/50">
+                            <td className="py-3 px-4">{sub.email}</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+                                {sub.source}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-sm text-muted-foreground">
+                              {new Date(sub.subscribedAt).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const emails = subscribers.map(s => s.email).join(', ')
+                        navigator.clipboard.writeText(emails)
+                        toast.success('Email addresses copied to clipboard!')
+                      }}
+                    >
+                      Copy All Emails
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Card>
           </TabsContent>
 
           <TabsContent value="website">

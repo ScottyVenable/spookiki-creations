@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { EnvelopeSimple, MapPin, Clock } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { sendContactForm } from '@/lib/notifications'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +15,31 @@ export default function ContactPage() {
     orderId: '',
     message: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    toast.success('Message sent! I\'ll get back to you soon.')
-    setFormData({ name: '', email: '', orderId: '', message: '' })
+    setIsSubmitting(true)
+
+    try {
+      const success = await sendContactForm({
+        name: formData.name,
+        email: formData.email,
+        orderId: formData.orderId || undefined,
+        message: formData.message,
+      })
+
+      if (success) {
+        toast.success('Message sent! I\'ll get back to you soon.')
+        setFormData({ name: '', email: '', orderId: '', message: '' })
+      } else {
+        toast.error('Failed to send message. Please try again or email hello@spookiki.com directly.')
+      }
+    } catch (error) {
+      toast.error('Failed to send message. Please try again or email hello@spookiki.com directly.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -103,8 +124,8 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                Send Message
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
             </form>
           </Card>

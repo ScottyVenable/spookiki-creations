@@ -6,16 +6,17 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Link } from '@/components/Link'
 import { useKV } from '@github/spark/hooks'
 import type { CartItem, Order, PaymentMethod } from '@/lib/types'
 import { formatPrice, generateOrderId } from '@/lib/data'
-import { ShoppingBag, CreditCard } from '@phosphor-icons/react'
+import { CreditCard } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { sendOrderNotification } from '@/lib/notifications'
 
 export default function CheckoutPage() {
   const [cart, setCart] = useKV<CartItem[]>('cart', [])
   const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [formData, setFormData] = useState({
     email: '',
@@ -51,7 +52,7 @@ export default function CheckoutPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!formData.agreeToTerms) {
@@ -59,43 +60,66 @@ export default function CheckoutPage() {
       return
     }
 
-    const orderId = generateOrderId()
-    
-    const newOrder: Order = {
-      id: orderId,
-      email: formData.email,
-      shipping_name: formData.name,
-      shipping_address_line1: formData.address1,
-      shipping_address_line2: formData.address2,
-      shipping_city: formData.city,
-      shipping_state: formData.state,
-      shipping_postal_code: formData.zipCode,
-      shipping_country: formData.country,
-      status: 'awaiting_payment',
-      payment_method: formData.paymentMethod,
-      payment_reference: formData.paymentReference,
-      subtotal,
-      shipping_cost: shipping,
-      tax_amount: 0,
-      total,
-      customer_note: formData.customerNote,
-      items: safeCart.map(item => ({
-        id: `${orderId}-${item.product_id}`,
-        order_id: orderId,
-        product_id: item.product_id,
-        name_snapshot: item.product.name,
-        unit_price: item.unit_price,
-        quantity: item.quantity,
-      })),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    setIsSubmitting(true)
+
+    try {
+      const orderId = generateOrderId()
+      
+      const newOrder: Order = {
+        id: orderId,
+        email: formData.email,
+        shipping_name: formData.name,
+        shipping_address_line1: formData.address1,
+        shipping_address_line2: formData.address2,
+        shipping_city: formData.city,
+        shipping_state: formData.state,
+        shipping_postal_code: formData.zipCode,
+        shipping_country: formData.country,
+        status: 'awaiting_payment',
+        payment_method: formData.paymentMethod,
+        payment_reference: formData.paymentReference,
+        subtotal,
+        shipping_cost: shipping,
+        tax_amount: 0,
+        total,
+        customer_note: formData.customerNote,
+        items: safeCart.map(item => ({
+          id: `${orderId}-${item.product_id}`,
+          order_id: orderId,
+          product_id: item.product_id,
+          name_snapshot: item.product.name,
+          unit_price: item.unit_price,
+          quantity: item.quantity,
+        })),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      setOrders((currentOrders) => [...(currentOrders || []), newOrder])
+      
+      // Send order notification
+      await sendOrderNotification({
+        orderId,
+        customerEmail: formData.email,
+        customerName: formData.name,
+        total,
+        items: safeCart.map(item => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.unit_price * item.quantity,
+        })),
+        paymentMethod: formData.paymentMethod,
+      })
+
+      setCart([])
+
+      window.history.pushState({}, '', `/order/${orderId}/confirmation`)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    } catch (error) {
+      toast.error('Failed to submit order. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setOrders((currentOrders) => [...(currentOrders || []), newOrder])
-    setCart([])
-
-    window.history.pushState({}, '', `/order/${orderId}/confirmation`)
-    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   return (
@@ -335,8 +359,8 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <Button type="submit" size="lg" className="w-full">
-                  Place Order
+                <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Placing Order...' : 'Place Order'}
                 </Button>
 
                 <div className="mt-6 pt-6 border-t border-border">

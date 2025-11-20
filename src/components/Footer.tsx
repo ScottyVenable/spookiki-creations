@@ -24,7 +24,9 @@ export function Footer() {
     try {
       // Check if already subscribed
       const existingSubscribers = subscribers || []
-      if (existingSubscribers.some(sub => sub.email === email)) {
+      const emailSet = new Set(existingSubscribers.map(sub => sub.email.toLowerCase()))
+      
+      if (emailSet.has(email.toLowerCase())) {
         toast.info('You\'re already subscribed!')
         setEmail('')
         return

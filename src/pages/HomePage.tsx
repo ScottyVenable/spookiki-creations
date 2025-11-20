@@ -43,7 +43,9 @@ export default function HomePage() {
     try {
       // Check if already subscribed
       const existingSubscribers = subscribers || []
-      if (existingSubscribers.some(sub => sub.email === newsletterEmail)) {
+      const emailSet = new Set(existingSubscribers.map(sub => sub.email.toLowerCase()))
+      
+      if (emailSet.has(newsletterEmail.toLowerCase())) {
         toast.info('You\'re already subscribed to the newsletter!')
         setNewsletterEmail('')
         return

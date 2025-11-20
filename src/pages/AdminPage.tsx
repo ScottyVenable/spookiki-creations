@@ -13,6 +13,7 @@ import { AdminProductsTab } from '@/components/AdminProductsTab'
 import { AdminOrdersTab } from '@/components/AdminOrdersTab'
 import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
 import { VisualEditor } from '@/components/VisualEditor'
+import { toast } from 'sonner'
 
 export default function AdminPage() {
   const [orders] = useKV<Order[]>('orders', [])
@@ -177,7 +178,7 @@ export default function AdminPage() {
                       onClick={() => {
                         const emails = subscribers.map(s => s.email).join(', ')
                         navigator.clipboard.writeText(emails)
-                        alert('Email addresses copied to clipboard!')
+                        toast.success('Email addresses copied to clipboard!')
                       }}
                     >
                       Copy All Emails

@@ -2,6 +2,13 @@
  * Free notification services using Web3Forms
  * Web3Forms is a free email API that doesn't require authentication for basic use
  * Alternative: Can use FormSubmit.co or other free email services
+ * 
+ * SETUP (Optional):
+ * For better email deliverability, you can get a free Web3Forms access key:
+ * 1. Visit https://web3forms.com
+ * 2. Sign up for a free account
+ * 3. Add the access key to the sendContactForm function below
+ * 4. Or set it as an environment variable: VITE_WEB3FORMS_KEY
  */
 
 export interface ContactFormData {
@@ -35,7 +42,10 @@ export async function sendContactForm(data: ContactFormData): Promise<boolean> {
     const formData = new FormData()
     
     // Optional: Add your Web3Forms access key here for better reliability
-    // formData.append('access_key', 'YOUR_ACCESS_KEY_HERE')
+    // const accessKey = import.meta.env.VITE_WEB3FORMS_KEY
+    // if (accessKey) {
+    //   formData.append('access_key', accessKey)
+    // }
     
     formData.append('name', data.name)
     formData.append('email', data.email)

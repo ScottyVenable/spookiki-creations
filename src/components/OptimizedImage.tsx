@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useMobileOptimizations } from '@/hooks/use-mobile-optimizations'
+import { useMobileOptimizationContext } from '@/contexts/MobileOptimizationContext'
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string
@@ -15,7 +15,7 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
  * - Provides loading state
  */
 export function OptimizedImage({ src, alt, className = '', eager = false, ...props }: OptimizedImageProps) {
-  const { isMobile, prefersReducedData } = useMobileOptimizations()
+  const { isMobile, prefersReducedData } = useMobileOptimizationContext()
   const [isLoaded, setIsLoaded] = useState(false)
   const [isInView, setIsInView] = useState(eager)
   const imgRef = useRef<HTMLImageElement>(null)

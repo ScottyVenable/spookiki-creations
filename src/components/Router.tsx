@@ -15,6 +15,8 @@ import FAQPage from '@/pages/FAQPage'
 import AccountPage from '@/pages/AccountPage'
 import AdminPage from '@/pages/AdminPage'
 
+const BASE_PATH = '/spookiki-creations'
+
 export function Router() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
@@ -27,25 +29,35 @@ export function Router() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
+  const getPathWithoutBase = (path: string) => {
+    if (path.startsWith(BASE_PATH)) {
+      return path.slice(BASE_PATH.length) || '/'
+    }
+    return path
+  }
+
   const renderPage = () => {
-    if (currentPath === '/') return <HomePage />
-    if (currentPath === '/shop' || currentPath.startsWith('/shop/')) return <ShopPage />
-    if (currentPath.startsWith('/product/')) return <ProductDetailPage />
-    if (currentPath === '/cart') return <CartPage />
-    if (currentPath === '/checkout') return <CheckoutPage />
-    if (currentPath.startsWith('/order/')) return <OrderConfirmationPage />
-    if (currentPath === '/blog') return <BlogIndexPage />
-    if (currentPath.startsWith('/blog/')) return <BlogPostPage />
-    if (currentPath === '/about') return <AboutPage />
-    if (currentPath === '/contact') return <ContactPage />
-    if (currentPath === '/faq') return <FAQPage />
-    if (currentPath.startsWith('/account')) return <AccountPage />
-    if (currentPath.startsWith('/admin')) return <AdminPage />
+    const path = getPathWithoutBase(currentPath)
+    
+    if (path === '/') return <HomePage />
+    if (path === '/shop' || path.startsWith('/shop/')) return <ShopPage />
+    if (path.startsWith('/product/')) return <ProductDetailPage />
+    if (path === '/cart') return <CartPage />
+    if (path === '/checkout') return <CheckoutPage />
+    if (path.startsWith('/order/')) return <OrderConfirmationPage />
+    if (path === '/blog') return <BlogIndexPage />
+    if (path.startsWith('/blog/')) return <BlogPostPage />
+    if (path === '/about') return <AboutPage />
+    if (path === '/contact') return <ContactPage />
+    if (path === '/faq') return <FAQPage />
+    if (path.startsWith('/account')) return <AccountPage />
+    if (path.startsWith('/admin')) return <AdminPage />
     
     return <HomePage />
   }
 
-  const isAdminRoute = currentPath.startsWith('/admin')
+  const path = getPathWithoutBase(currentPath)
+  const isAdminRoute = path.startsWith('/admin')
 
   return (
     <div className="min-h-screen flex flex-col">

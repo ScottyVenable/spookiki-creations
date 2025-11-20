@@ -11,13 +11,16 @@ import { sampleProducts, formatPrice } from '@/lib/data'
 import { Plus, Minus, ShoppingCart, Package } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
+const BASE_PATH = '/spookiki-creations'
+
 export default function ProductDetailPage() {
   const [products] = useKV<Product[]>('products', sampleProducts)
   const [cart, setCart] = useKV<CartItem[]>('cart', [])
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
 
-  const slug = window.location.pathname.split('/product/')[1]
+  const pathname = window.location.pathname.replace(BASE_PATH, '')
+  const slug = pathname.split('/product/')[1]
   const product = (products || sampleProducts).find(p => p.slug === slug)
 
   if (!product) {

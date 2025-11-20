@@ -6,10 +6,13 @@ import type { BlogPost } from '@/lib/types'
 import { sampleBlogPosts } from '@/lib/data'
 import { ArrowLeft, Calendar } from '@phosphor-icons/react'
 
+const BASE_PATH = '/spookiki-creations'
+
 export default function BlogPostPage() {
   const [blogPosts] = useKV<BlogPost[]>('blog_posts', sampleBlogPosts)
 
-  const slug = window.location.pathname.split('/blog/')[1]
+  const pathname = window.location.pathname.replace(BASE_PATH, '')
+  const slug = pathname.split('/blog/')[1]
   const post = (blogPosts || sampleBlogPosts).find(p => p.slug === slug)
 
   if (!post) {

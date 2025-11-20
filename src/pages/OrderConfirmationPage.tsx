@@ -8,10 +8,13 @@ import type { Order } from '@/lib/types'
 import { formatPrice, getPaymentInstructions } from '@/lib/data'
 import { CheckCircle, Package, ArrowRight } from '@phosphor-icons/react'
 
+const BASE_PATH = '/spookiki-creations'
+
 export default function OrderConfirmationPage() {
   const [orders] = useKV<Order[]>('orders', [])
 
-  const orderId = window.location.pathname.split('/order/')[1]?.split('/')[0]
+  const pathname = window.location.pathname.replace(BASE_PATH, '')
+  const orderId = pathname.split('/order/')[1]?.split('/')[0]
   const order = (orders || []).find(o => o.id === orderId)
 
   if (!order) {

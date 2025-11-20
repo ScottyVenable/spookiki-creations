@@ -8,13 +8,15 @@ import type { Product, ProductCategory } from '@/lib/types'
 import { sampleProducts } from '@/lib/data'
 import { FunnelSimple } from '@phosphor-icons/react'
 
+const BASE_PATH = '/spookiki-creations'
+
 export default function ShopPage() {
   const [products] = useKV<Product[]>('products', sampleProducts)
   const [category, setCategory] = useState<ProductCategory | 'all'>('all')
   const [sortBy, setSortBy] = useState('newest')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
-  const currentPath = window.location.pathname
+  const currentPath = window.location.pathname.replace(BASE_PATH, '')
   
   useEffect(() => {
     if (currentPath.startsWith('/shop/')) {

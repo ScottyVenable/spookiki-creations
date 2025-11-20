@@ -201,8 +201,9 @@ export function AdminProductsTab() {
                   id="price"
                   type="number"
                   step="0.01"
-                  value={formData.price || 0}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                  min="0"
+                  value={formData.price ?? ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
                 />
               </div>
 
@@ -211,8 +212,9 @@ export function AdminProductsTab() {
                 <Input
                   id="stock"
                   type="number"
-                  value={formData.stock_quantity || 0}
-                  onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: parseInt(e.target.value) || 0 }))}
+                  min="0"
+                  value={formData.stock_quantity ?? ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: e.target.value === '' ? 0 : parseInt(e.target.value) }))}
                 />
               </div>
 

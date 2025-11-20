@@ -7,6 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Upload, Link as LinkIcon, Trash, ImageSquare } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
+// Configuration constants
+const MAX_FILE_SIZE_MB = 10
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const IMGUR_CLIENT_ID = '546c25a59c58ad7' // Public client ID for anonymous uploads
+const FALLBACK_IMAGE_PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="18"%3EInvalid URL%3C/text%3E%3C/svg%3E'
+
 interface ImageUploaderProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -38,8 +44,8 @@ export function ImageUploader({
       }
       
       // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('Image size must be less than 10MB')
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast.error(`Image size must be less than ${MAX_FILE_SIZE_MB}MB`)
         return
       }
 
@@ -69,7 +75,7 @@ export function ImageUploader({
           const response = await fetch('https://api.imgur.com/3/image', {
             method: 'POST',
             headers: {
-              'Authorization': 'Client-ID 546c25a59c58ad7', // Public client ID for anonymous uploads
+              'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -197,7 +203,7 @@ export function ImageUploader({
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Supported formats: JPG, PNG, GIF, WebP (max 10MB)
+                Supported formats: JPG, PNG, GIF, WebP (max {MAX_FILE_SIZE_MB}MB)
               </p>
             </div>
 
@@ -294,7 +300,7 @@ export function ImageUploader({
                   alt="URL Preview" 
                   className="w-full h-48 object-contain rounded-lg border border-border bg-muted mt-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Invalid+URL'
+                    (e.target as HTMLImageElement).src = FALLBACK_IMAGE_PLACEHOLDER
                   }}
                 />
               </div>

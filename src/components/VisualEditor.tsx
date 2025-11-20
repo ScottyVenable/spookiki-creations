@@ -29,6 +29,7 @@ import {
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 import { v4 as uuidv4 } from 'uuid'
+import { ImageUploader } from '@/components/ImageUploader'
 
 // Constants for viewport breakpoints
 const VIEWPORT_WIDTHS = {
@@ -172,6 +173,8 @@ export function VisualEditor() {
     previewMode: 'desktop',
     isEditMode: true
   })
+  const [isImageUploaderOpen, setIsImageUploaderOpen] = useState(false)
+  const [currentImageElement, setCurrentImageElement] = useState<{sectionId: string, elementId: string} | null>(null)
 
   useEffect(() => {
     if (editorState) {
@@ -299,6 +302,18 @@ export function VisualEditor() {
     })
     setLocalState({ ...localState, sections: newSections, selectedElement: newElement.id })
     toast.success('Element added')
+  }
+
+  const handleImageSelected = (url: string) => {
+    if (currentImageElement) {
+      updateElementContent(currentImageElement.sectionId, currentImageElement.elementId, url)
+      setCurrentImageElement(null)
+    }
+  }
+
+  const openImageUploader = (sectionId: string, elementId: string) => {
+    setCurrentImageElement({ sectionId, elementId })
+    setIsImageUploaderOpen(true)
   }
 
   const getSelectedElement = () => {
@@ -527,12 +542,21 @@ export function VisualEditor() {
                     {selectedData.element.type === 'image' && (
                       <div>
                         <Label htmlFor="image-url">Image URL</Label>
-                        <Input
-                          id="image-url"
-                          value={selectedData.element.content}
-                          onChange={(e) => updateElementContent(selectedData.section.id, selectedData.element.id, e.target.value)}
-                          placeholder="https://example.com/image.jpg"
-                        />
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            id="image-url"
+                            value={selectedData.element.content}
+                            onChange={(e) => updateElementContent(selectedData.section.id, selectedData.element.id, e.target.value)}
+                            placeholder="https://example.com/image.jpg"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => openImageUploader(selectedData.section.id, selectedData.element.id)}
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                         {selectedData.element.content && (
                           <img 
                             src={selectedData.element.content} 
@@ -688,6 +712,14 @@ export function VisualEditor() {
           </div>
         )}
       </div>
+
+      <ImageUploader
+        open={isImageUploaderOpen}
+        onOpenChange={setIsImageUploaderOpen}
+        onImageSelected={handleImageSelected}
+        title="Select Image"
+        description="Upload an image from your device or enter an image URL"
+      />
     </div>
   )
 }

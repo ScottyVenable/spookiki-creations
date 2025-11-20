@@ -13,6 +13,7 @@ import type { Product, ProductCategory, ProductStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
 import { Plus, Pencil, Trash, Image as ImageIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { ImageUploader } from '@/components/ImageUploader'
 
 // Form data type that allows string values for number fields during editing
 type ProductFormData = Omit<Partial<Product>, 'price' | 'stock_quantity'> & {
@@ -25,6 +26,7 @@ export function AdminProductsTab() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState<ProductFormData>({})
+  const [isImageUploaderOpen, setIsImageUploaderOpen] = useState(false)
 
   const allProducts = products || []
 
@@ -327,30 +329,14 @@ export function AdminProductsTab() {
               <div className="col-span-2">
                 <div className="flex items-center justify-between mb-2">
                   <Label>Product Images</Label>
-                  <div className="flex gap-2 flex-1 max-w-md ml-4">
-                    <Input
-                      id="image-url"
-                      placeholder="Enter image URL"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleImageUrlAdd((e.target as HTMLInputElement).value)
-                          ;(e.target as HTMLInputElement).value = ''
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => {
-                        const input = document.getElementById('image-url') as HTMLInputElement
-                        handleImageUrlAdd(input.value)
-                        input.value = ''
-                      }}
-                    >
-                      Add
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setIsImageUploaderOpen(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Image
+                  </Button>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {(formData.images || []).map((url, index) => (
@@ -391,6 +377,14 @@ export function AdminProductsTab() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ImageUploader
+        open={isImageUploaderOpen}
+        onOpenChange={setIsImageUploaderOpen}
+        onImageSelected={handleImageUrlAdd}
+        title="Add Product Image"
+        description="Upload an image from your device or enter an image URL"
+      />
     </>
   )
 }

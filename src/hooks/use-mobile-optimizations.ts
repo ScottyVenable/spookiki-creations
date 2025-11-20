@@ -26,9 +26,9 @@ export function useMobileOptimizations(): MobileOptimizations {
     const handleMotionChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches)
     motionQuery.addEventListener("change", handleMotionChange)
 
-    // Check for save-data preference
-    const saveDataQuery = window.matchMedia("(prefers-reduced-data: reduce)")
-    setPrefersReducedData(saveDataQuery.matches)
+    // Check for save-data preference (via Network Information API)
+    const saveData = (navigator as { connection?: { saveData?: boolean } }).connection?.saveData
+    setPrefersReducedData(saveData || false)
 
     // Check connection speed if available
     interface NetworkInformation {

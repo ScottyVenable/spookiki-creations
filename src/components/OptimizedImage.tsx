@@ -16,7 +16,7 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
  */
 export function OptimizedImage({ src, alt, className = '', eager = false, ...props }: OptimizedImageProps) {
   const { isMobile, prefersReducedData } = useMobileOptimizationContext()
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(eager) // Start loaded if eager
   const [isInView, setIsInView] = useState(eager)
   const imgRef = useRef<HTMLImageElement>(null)
 
@@ -53,7 +53,7 @@ export function OptimizedImage({ src, alt, className = '', eager = false, ...pro
   return (
     <img
       ref={imgRef}
-      src={isInView ? src : undefined}
+      src={isInView ? src : ''}
       alt={alt}
       className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
       loading={eager ? 'eager' : 'lazy'}

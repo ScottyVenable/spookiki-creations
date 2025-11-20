@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Order, Product } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
@@ -13,8 +13,8 @@ import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
 import { VisualEditor } from '@/components/VisualEditor'
 
 export default function AdminPage() {
-  const [orders] = useKV<Order[]>('orders', [])
-  const [products] = useKV<Product[]>('products', [])
+  const [orders] = useLocalStorage<Order[]>('orders', [])
+  const [products] = useLocalStorage<Product[]>('products', [])
   const { currentUser, isAdmin, logout } = useAuth()
 
   useEffect(() => {

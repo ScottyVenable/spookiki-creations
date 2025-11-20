@@ -4,14 +4,14 @@ import { ProductCard } from '@/components/ProductCard'
 import { BlogCard } from '@/components/BlogCard'
 import { Link } from '@/components/Link'
 import { ArrowRight, Sparkle } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Product, BlogPost } from '@/lib/types'
 import { sampleProducts, sampleBlogPosts } from '@/lib/data'
 import { useEffect } from 'react'
 
 export default function HomePage() {
-  const [products, setProducts] = useKV<Product[]>('products', [])
-  const [blogPosts, setBlogPosts] = useKV<BlogPost[]>('blog_posts', [])
+  const [products, setProducts] = useLocalStorage<Product[]>('products', [])
+  const [blogPosts, setBlogPosts] = useLocalStorage<BlogPost[]>('blog_posts', [])
 
   useEffect(() => {
     if (!products || products.length === 0) {

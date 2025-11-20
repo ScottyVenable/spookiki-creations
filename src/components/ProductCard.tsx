@@ -3,6 +3,7 @@ import { Card } from './ui/card'
 import { Badge } from './ui/badge'
 import { Link } from './Link'
 import { formatPrice } from '@/lib/data'
+import { OptimizedImage } from './OptimizedImage'
 
 interface ProductCardProps {
   product: Product
@@ -13,7 +14,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link href={`/product/${product.slug}`}>
       <Card className="group overflow-hidden border-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
         <div className="aspect-square overflow-hidden bg-muted relative">
-          <img 
+          <OptimizedImage
             src={product.images[0]} 
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

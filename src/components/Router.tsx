@@ -1,21 +1,37 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Header } from './Header'
 import { Footer } from './Footer'
 import HomePage from '@/pages/HomePage'
-import ShopPage from '@/pages/ShopPage'
-import ProductDetailPage from '@/pages/ProductDetailPage'
-import CartPage from '@/pages/CartPage'
-import CheckoutPage from '@/pages/CheckoutPage'
-import OrderConfirmationPage from '@/pages/OrderConfirmationPage'
-import BlogIndexPage from '@/pages/BlogIndexPage'
-import BlogPostPage from '@/pages/BlogPostPage'
-import AboutPage from '@/pages/AboutPage'
-import ContactPage from '@/pages/ContactPage'
-import FAQPage from '@/pages/FAQPage'
-import AccountPage from '@/pages/AccountPage'
-import AdminPage from '@/pages/AdminPage'
+
+// Lazy load pages for better performance, especially on mobile
+const ShopPage = lazy(() => import('@/pages/ShopPage'))
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'))
+const CartPage = lazy(() => import('@/pages/CartPage'))
+const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'))
+const OrderConfirmationPage = lazy(() => import('@/pages/OrderConfirmationPage'))
+const BlogIndexPage = lazy(() => import('@/pages/BlogIndexPage'))
+const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'))
+const AboutPage = lazy(() => import('@/pages/AboutPage'))
+const ContactPage = lazy(() => import('@/pages/ContactPage'))
+const FAQPage = lazy(() => import('@/pages/FAQPage'))
+const AccountPage = lazy(() => import('@/pages/AccountPage'))
+const AdminPage = lazy(() => import('@/pages/AdminPage'))
 
 const BASE_PATH = '/spookiki-creations'
+
+// Loading component for Suspense fallback
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
+        <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  )
+}
 
 export function Router() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
@@ -63,7 +79,9 @@ export function Router() {
     <div className="min-h-screen flex flex-col">
       {!isAdminRoute && <Header />}
       <main className="flex-1">
-        {renderPage()}
+        <Suspense fallback={<PageLoader />}>
+          {renderPage()}
+        </Suspense>
       </main>
       {!isAdminRoute && <Footer />}
     </div>

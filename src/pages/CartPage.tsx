@@ -73,10 +73,10 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {safeCart.map((item) => (
-              <Card key={item.product_id} className="p-6">
-                <div className="flex gap-6">
+              <Card key={item.product_id} className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
                   <Link href={`/product/${item.product.slug}`} className="flex-shrink-0">
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted">
+                    <div className="w-full sm:w-24 h-48 sm:h-24 rounded-lg overflow-hidden bg-muted">
                       <img
                         src={item.product.images[0]}
                         alt={item.product.name}
@@ -95,7 +95,7 @@ export default function CartPage() {
                       {formatPrice(item.unit_price)} each
                     </p>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                       <div className="flex items-center border border-border rounded-lg">
                         <Button
                           variant="ghost"
@@ -124,7 +124,7 @@ export default function CartPage() {
                         onClick={() => removeItem(item.product_id)}
                       >
                         <Trash className="h-4 w-4" />
-                        Remove
+                        <span className="hidden sm:inline">Remove</span>
                       </Button>
                     </div>
 
@@ -135,7 +135,7 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <div className="font-semibold text-lg">
                       {formatPrice(item.unit_price * item.quantity)}
                     </div>

@@ -31,6 +31,8 @@ export interface Product {
   color_palette?: string
   created_at: string
   updated_at: string
+  created_by?: string
+  updated_by?: string
 }
 
 export interface CartItem {
@@ -65,6 +67,7 @@ export interface Order {
   items: OrderItem[]
   created_at: string
   updated_at: string
+  status_updated_by?: string
 }
 
 export interface OrderItem {
@@ -94,4 +97,6 @@ export interface BlogPost {
 export interface PageContent {
   key: string
   value: string
+  updated_by?: string
+  updated_at?: string
 }

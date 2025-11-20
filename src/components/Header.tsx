@@ -1,16 +1,26 @@
-import { ShoppingCart, User, MagnifyingGlass, GearSix, SignOut } from '@phosphor-icons/react'
+import { ShoppingCart, User, MagnifyingGlass, GearSix, SignOut, List } from '@phosphor-icons/react'
 import { Link } from './Link'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from './ui/sheet'
 import { useKV } from '@github/spark/hooks'
 import { useAuth } from '@/contexts/AuthContext'
 import type { CartItem } from '@/lib/types'
+import { useState } from 'react'
 
 export function Header() {
   const [cart] = useKV<CartItem[]>('cart', [])
   const { currentUser, logout, isAdmin } = useAuth()
   const cartItemCount = (cart || []).reduce((sum, item) => sum + item.quantity, 0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const closeMobileMenu = () => setMobileMenuOpen(false)
+  
+  const handleLogout = () => {
+    logout()
+    closeMobileMenu()
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -21,6 +31,7 @@ export function Header() {
           </span>
         </Link>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <Link href="/shop" className="text-sm font-medium hover:text-primary transition-colors">
             Shop
@@ -41,7 +52,73 @@ export function Header() {
           )}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <List className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px]">
+              <SheetHeader>
+                <SheetTitle style={{ fontFamily: 'Nunito, sans-serif' }}>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-4 mt-6">
+                <SheetClose asChild>
+                  <Link href="/shop" className="text-base font-medium hover:text-primary transition-colors py-2">
+                    Shop
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/blog" className="text-base font-medium hover:text-primary transition-colors py-2">
+                    Blog
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/about" className="text-base font-medium hover:text-primary transition-colors py-2">
+                    About
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href="/contact" className="text-base font-medium hover:text-primary transition-colors py-2">
+                    Contact
+                  </Link>
+                </SheetClose>
+                {isAdmin && (
+                  <SheetClose asChild>
+                    <Link href="/admin" className="text-base font-medium hover:text-primary transition-colors py-2 text-accent">
+                      Admin Panel
+                    </Link>
+                  </SheetClose>
+                )}
+                {currentUser && (
+                  <>
+                    <div className="border-t border-border my-2" />
+                    <SheetClose asChild>
+                      <Link href="/account" className="text-base font-medium hover:text-primary transition-colors py-2">
+                        My Account
+                      </Link>
+                    </SheetClose>
+                    <Button variant="outline" onClick={handleLogout} className="justify-start">
+                      <SignOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                )}
+                {!currentUser && (
+                  <SheetClose asChild>
+                    <Link href="/account">
+                      <Button variant="outline" className="w-full justify-start">
+                        Login
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
           <Button variant="ghost" size="icon" className="hidden md:flex">
             <MagnifyingGlass className="h-5 w-5" />
           </Button>
@@ -49,7 +126,7 @@ export function Header() {
           {currentUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hidden md:flex">
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -93,7 +170,7 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href="/account">
+            <Link href="/account" className="hidden md:block">
               <Button variant="ghost" size="sm">
                 Login
               </Button>

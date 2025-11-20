@@ -11,14 +11,16 @@ import { Switch } from '@/components/ui/switch'
 import { useKV } from '@github/spark/hooks'
 import type { Product, ProductCategory, ProductStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
-import { Plus, Pencil, Trash, Image as ImageIcon } from '@phosphor-icons/react'
+import { Plus, Pencil, Trash, Image as ImageIcon, User } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function AdminProductsTab() {
   const [products, setProducts] = useKV<Product[]>('products', [])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState<Partial<Product>>({})
+  const { currentUser } = useAuth()
 
   const allProducts = products || []
 
@@ -52,12 +54,13 @@ export function AdminProductsTab() {
 
     const now = new Date().toISOString()
     const slug = formData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ''
+    const userName = currentUser?.name || currentUser?.username || 'Unknown Admin'
 
     if (editingProduct) {
       setProducts((current) => {
         const updated = (current || []).map(p =>
           p.id === editingProduct.id
-            ? { ...formData as Product, slug, updated_at: now }
+            ? { ...formData as Product, slug, updated_at: now, updated_by: userName }
             : p
         )
         return updated
@@ -70,6 +73,8 @@ export function AdminProductsTab() {
         slug,
         created_at: now,
         updated_at: now,
+        created_by: userName,
+        updated_by: userName,
       }
       setProducts((current) => [...(current || []), newProduct])
       toast.success('Product created')
@@ -122,7 +127,7 @@ export function AdminProductsTab() {
         ) : (
           <div className="space-y-4">
             {allProducts.map((product) => (
-              <div key={product.id} className="flex items-center gap-4 border border-border rounded-lg p-4">
+              <div key={product.id} className="flex flex-col md:flex-row md:items-center gap-4 border border-border rounded-lg p-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                   {product.images[0] ? (
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
@@ -136,6 +141,16 @@ export function AdminProductsTab() {
                 <div className="flex-1">
                   <div className="font-semibold">{product.name}</div>
                   <div className="text-sm text-muted-foreground capitalize">{product.category}</div>
+                  {product.updated_by && (
+                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {product.created_at === product.updated_at ? (
+                        <span>Created by {product.created_by}</span>
+                      ) : (
+                        <span>Last updated by {product.updated_by}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="text-right">
@@ -143,7 +158,7 @@ export function AdminProductsTab() {
                   <div className="text-sm text-muted-foreground">Stock: {product.stock_quantity}</div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {product.is_featured && <Badge variant="default">Featured</Badge>}
                   <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
                     {product.status}
@@ -165,7 +180,7 @@ export function AdminProductsTab() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] md:w-full">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? 'Edit Product' : 'Create New Product'}
@@ -173,8 +188,8 @@ export function AdminProductsTab() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="name">Product Name *</Label>
                 <Input
                   id="name"
@@ -184,7 +199,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -195,7 +210,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="price">Price *</Label>
                 <Input
                   id="price"
@@ -207,7 +222,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="stock">Stock Quantity</Label>
                 <Input
                   id="stock"
@@ -218,7 +233,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.category || 'other'}
@@ -236,7 +251,7 @@ export function AdminProductsTab() {
                 </Select>
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status || 'draft'}
@@ -253,7 +268,7 @@ export function AdminProductsTab() {
                 </Select>
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="material">Material</Label>
                 <Input
                   id="material"
@@ -263,7 +278,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div>
+              <div className="col-span-1">
                 <Label htmlFor="gemstone">Gemstone</Label>
                 <Input
                   id="gemstone"
@@ -273,7 +288,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="gemstone-meaning">Gemstone Meaning</Label>
                 <Textarea
                   id="gemstone-meaning"
@@ -284,7 +299,7 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <Label htmlFor="tags">Tags (comma-separated)</Label>
                 <Input
                   id="tags"
@@ -297,13 +312,14 @@ export function AdminProductsTab() {
                 />
               </div>
 
-              <div className="col-span-2">
-                <div className="flex items-center justify-between mb-2">
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                   <Label>Product Images</Label>
-                  <div className="flex gap-2 flex-1 max-w-md ml-4">
+                  <div className="flex gap-2 w-full md:w-auto md:min-w-[300px]">
                     <Input
                       id="image-url"
                       placeholder="Enter image URL"
+                      className="flex-1"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
@@ -325,7 +341,7 @@ export function AdminProductsTab() {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(formData.images || []).map((url, index) => (
                     <div key={index} className="relative group">
                       <img src={url} alt="" className="w-full h-24 object-cover rounded-lg" />
@@ -343,7 +359,7 @@ export function AdminProductsTab() {
                 </div>
               </div>
 
-              <div className="col-span-2 flex items-center gap-2">
+              <div className="col-span-1 md:col-span-2 flex items-center gap-2">
                 <Switch
                   id="featured"
                   checked={formData.is_featured || false}

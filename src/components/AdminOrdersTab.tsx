@@ -5,18 +5,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useKV } from '@github/spark/hooks'
 import type { Order, OrderStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
+import { useAuth } from '@/contexts/AuthContext'
+import { User } from '@phosphor-icons/react'
 
 export function AdminOrdersTab() {
   const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const { currentUser } = useAuth()
 
   const allOrders = orders || []
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
+    const userName = currentUser?.name || currentUser?.username || 'Unknown Admin'
     setOrders((currentOrders) => {
       const safeOrders = currentOrders || []
       return safeOrders.map(order =>
         order.id === orderId
-          ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
+          ? { ...order, status: newStatus, updated_at: new Date().toISOString(), status_updated_by: userName }
           : order
       )
     })
@@ -38,7 +42,7 @@ export function AdminOrdersTab() {
             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((order) => (
               <div key={order.id} className="border border-border rounded-lg p-4">
-                <div className="grid md:grid-cols-5 gap-4 items-center">
+                <div className="grid md:grid-cols-5 gap-4 items-start md:items-center">
                   <div>
                     <div className="font-semibold">#{order.id}</div>
                     <div className="text-sm text-muted-foreground">
@@ -74,6 +78,12 @@ export function AdminOrdersTab() {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
+                    {order.status_updated_by && (
+                      <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        Updated by {order.status_updated_by}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-end">

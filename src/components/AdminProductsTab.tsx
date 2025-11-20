@@ -51,7 +51,7 @@ export function AdminProductsTab() {
   }
 
   const handleSaveProduct = () => {
-    if (!formData.name || !formData.price) {
+    if (!formData.name || formData.price === undefined || formData.price === '') {
       toast.error('Please fill in required fields')
       return
     }
@@ -61,12 +61,12 @@ export function AdminProductsTab() {
     const stock_quantity = typeof formData.stock_quantity === 'string' ? parseInt(formData.stock_quantity) : (formData.stock_quantity ?? 0)
 
     // Validate numeric values
-    if (isNaN(price) || price < 0) {
+    if (price === undefined || isNaN(price) || price < 0) {
       toast.error('Please enter a valid price')
       return
     }
 
-    if (isNaN(stock_quantity) || stock_quantity < 0) {
+    if (stock_quantity === undefined || isNaN(stock_quantity) || stock_quantity < 0) {
       toast.error('Please enter a valid stock quantity')
       return
     }

@@ -11,14 +11,16 @@ import { Switch } from '@/components/ui/switch'
 import { useKV } from '@github/spark/hooks'
 import type { Product, ProductCategory, ProductStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
-import { Plus, Pencil, Trash, Image as ImageIcon } from '@phosphor-icons/react'
+import { Plus, Pencil, Trash, Image as ImageIcon, User } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function AdminProductsTab() {
   const [products, setProducts] = useKV<Product[]>('products', [])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState<Partial<Product>>({})
+  const { currentUser } = useAuth()
 
   const allProducts = products || []
 
@@ -52,12 +54,13 @@ export function AdminProductsTab() {
 
     const now = new Date().toISOString()
     const slug = formData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ''
+    const userName = currentUser?.name || currentUser?.username || 'Unknown Admin'
 
     if (editingProduct) {
       setProducts((current) => {
         const updated = (current || []).map(p =>
           p.id === editingProduct.id
-            ? { ...formData as Product, slug, updated_at: now }
+            ? { ...formData as Product, slug, updated_at: now, updated_by: userName }
             : p
         )
         return updated
@@ -70,6 +73,8 @@ export function AdminProductsTab() {
         slug,
         created_at: now,
         updated_at: now,
+        created_by: userName,
+        updated_by: userName,
       }
       setProducts((current) => [...(current || []), newProduct])
       toast.success('Product created')
@@ -122,7 +127,7 @@ export function AdminProductsTab() {
         ) : (
           <div className="space-y-4">
             {allProducts.map((product) => (
-              <div key={product.id} className="flex items-center gap-4 border border-border rounded-lg p-4">
+              <div key={product.id} className="flex flex-col md:flex-row md:items-center gap-4 border border-border rounded-lg p-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                   {product.images[0] ? (
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
@@ -136,6 +141,16 @@ export function AdminProductsTab() {
                 <div className="flex-1">
                   <div className="font-semibold">{product.name}</div>
                   <div className="text-sm text-muted-foreground capitalize">{product.category}</div>
+                  {product.updated_by && (
+                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {product.created_by === product.updated_by ? (
+                        <span>Created by {product.created_by}</span>
+                      ) : (
+                        <span>Updated by {product.updated_by}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="text-right">
@@ -143,7 +158,7 @@ export function AdminProductsTab() {
                   <div className="text-sm text-muted-foreground">Stock: {product.stock_quantity}</div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {product.is_featured && <Badge variant="default">Featured</Badge>}
                   <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
                     {product.status}

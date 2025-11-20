@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useKV } from '@github/spark/hooks'
-import { Palette, FileText, Image as ImageIcon } from '@phosphor-icons/react'
+import { Palette, FileText, Image as ImageIcon, User } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface WebsiteSettings {
   siteName?: string
@@ -25,18 +26,27 @@ interface WebsiteSettings {
   heroImage?: string
   shippingInfo?: string
   returnPolicy?: string
+  lastUpdatedBy?: string
+  lastUpdatedAt?: string
 }
 
 export function AdminWebsiteTab() {
   const [settings, setSettings] = useKV<WebsiteSettings>('website-settings', {})
   const [formData, setFormData] = useState<WebsiteSettings>({})
+  const { currentUser } = useAuth()
 
   useEffect(() => {
     setFormData(settings || {})
   }, [settings])
 
   const handleSave = () => {
-    setSettings(formData)
+    const userName = currentUser?.name || currentUser?.username || 'Unknown Admin'
+    const updatedSettings = {
+      ...formData,
+      lastUpdatedBy: userName,
+      lastUpdatedAt: new Date().toISOString()
+    }
+    setSettings(updatedSettings)
     toast.success('Website settings saved')
   }
 
@@ -213,6 +223,18 @@ export function AdminWebsiteTab() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {settings?.lastUpdatedBy && (
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground flex items-center gap-2">
+          <User className="h-4 w-4" />
+          <span>
+            Last updated by <strong>{settings.lastUpdatedBy}</strong>
+            {settings.lastUpdatedAt && (
+              <> on {new Date(settings.lastUpdatedAt).toLocaleString()}</>
+            )}
+          </span>
+        </div>
+      )}
 
       <div className="flex justify-end mt-6">
         <Button onClick={handleSave}>

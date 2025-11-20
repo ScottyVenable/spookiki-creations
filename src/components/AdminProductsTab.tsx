@@ -58,15 +58,15 @@ export function AdminProductsTab() {
 
     // Parse numeric values from string inputs
     const price = typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price
-    const stock_quantity = typeof formData.stock_quantity === 'string' ? parseInt(formData.stock_quantity) : (formData.stock_quantity ?? 0)
+    const stock_quantity = typeof formData.stock_quantity === 'string' ? parseInt(formData.stock_quantity, 10) : (formData.stock_quantity ?? 0)
 
     // Validate numeric values
-    if (price === undefined || isNaN(price) || price < 0) {
+    if (isNaN(price) || price < 0) {
       toast.error('Please enter a valid price')
       return
     }
 
-    if (stock_quantity === undefined || isNaN(stock_quantity) || stock_quantity < 0) {
+    if (isNaN(stock_quantity) || stock_quantity < 0) {
       toast.error('Please enter a valid stock quantity')
       return
     }

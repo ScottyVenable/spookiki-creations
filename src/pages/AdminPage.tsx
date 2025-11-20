@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Link } from '@/components/Link'
+import { useRepositoryData } from '@/hooks/useRepositoryData'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Order, Product } from '@/lib/types'
@@ -14,7 +15,7 @@ import { AdminWebsiteTab } from '@/components/AdminWebsiteTab'
 
 export default function AdminPage() {
   const [orders] = useLocalStorage<Order[]>('orders', [])
-  const [products] = useLocalStorage<Product[]>('products', [])
+  const [products] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
   const { currentUser, isAdmin, logout } = useAuth()
 
   useEffect(() => {

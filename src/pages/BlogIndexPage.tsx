@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import { BlogCard } from '@/components/BlogCard'
 import { Badge } from '@/components/ui/badge'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useRepositoryData } from '@/hooks/useRepositoryData'
 import type { BlogPost } from '@/lib/types'
-import { sampleBlogPosts } from '@/lib/data'
 
 export default function BlogIndexPage() {
-  const [blogPosts] = useLocalStorage<BlogPost[]>('blog_posts', sampleBlogPosts)
+  const [blogPosts] = useRepositoryData<BlogPost>('/spookiki-creations/data/blog-posts.json', 'blog_posts')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
-  const posts = (blogPosts || sampleBlogPosts).filter(p => p.status === 'published')
+  const posts = (blogPosts || []).filter(p => p.status === 'published')
   const allTags = Array.from(new Set(posts.flatMap(p => p.tags)))
 
   const filteredPosts = selectedTag

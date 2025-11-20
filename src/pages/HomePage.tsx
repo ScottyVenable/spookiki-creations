@@ -4,26 +4,15 @@ import { ProductCard } from '@/components/ProductCard'
 import { BlogCard } from '@/components/BlogCard'
 import { Link } from '@/components/Link'
 import { ArrowRight, Sparkle } from '@phosphor-icons/react'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useRepositoryData } from '@/hooks/useRepositoryData'
 import type { Product, BlogPost } from '@/lib/types'
-import { sampleProducts, sampleBlogPosts } from '@/lib/data'
-import { useEffect } from 'react'
 
 export default function HomePage() {
-  const [products, setProducts] = useLocalStorage<Product[]>('products', [])
-  const [blogPosts, setBlogPosts] = useLocalStorage<BlogPost[]>('blog_posts', [])
+  const [products] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
+  const [blogPosts] = useRepositoryData<BlogPost>('/spookiki-creations/data/blog-posts.json', 'blog_posts')
 
-  useEffect(() => {
-    if (!products || products.length === 0) {
-      setProducts(sampleProducts)
-    }
-    if (!blogPosts || blogPosts.length === 0) {
-      setBlogPosts(sampleBlogPosts)
-    }
-  }, [])
-
-  const featuredProducts = (products || sampleProducts).filter(p => p.is_featured && p.status === 'active').slice(0, 4)
-  const recentPosts = (blogPosts || sampleBlogPosts).filter(p => p.status === 'published').slice(0, 3)
+  const featuredProducts = (products || []).filter(p => p.is_featured && p.status === 'active').slice(0, 4)
+  const recentPosts = (blogPosts || []).filter(p => p.status === 'published').slice(0, 3)
 
   return (
     <div>

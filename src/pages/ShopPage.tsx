@@ -3,15 +3,14 @@ import { ProductCard } from '@/components/ProductCard'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useRepositoryData } from '@/hooks/useRepositoryData'
 import type { Product, ProductCategory } from '@/lib/types'
-import { sampleProducts } from '@/lib/data'
 import { FunnelSimple } from '@phosphor-icons/react'
 
 const BASE_PATH = '/spookiki-creations'
 
 export default function ShopPage() {
-  const [products] = useLocalStorage<Product[]>('products', sampleProducts)
+  const [products] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
   const [category, setCategory] = useState<ProductCategory | 'all'>('all')
   const [sortBy, setSortBy] = useState('newest')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -35,7 +34,7 @@ export default function ShopPage() {
     )
   }
 
-  let filteredProducts = (products || sampleProducts).filter(p => p.status === 'active')
+  let filteredProducts = (products || []).filter(p => p.status === 'active')
 
   if (category !== 'all') {
     filteredProducts = filteredProducts.filter(p => p.category === category)

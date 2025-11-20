@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useRepositoryData } from '@/hooks/useRepositoryData'
 import type { Product, ProductCategory, ProductStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
 import { Plus, Pencil, Trash, Image as ImageIcon } from '@phosphor-icons/react'
@@ -21,7 +21,7 @@ type ProductFormData = Omit<Partial<Product>, 'price' | 'stock_quantity'> & {
 }
 
 export function AdminProductsTab() {
-  const [products, setProducts] = useLocalStorage<Product[]>('products', [])
+  const [products, setProducts] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState<ProductFormData>({})

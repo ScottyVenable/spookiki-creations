@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "title": "Why I Started Making Spooky-Cute Art",
+    "slug": "why-i-started-making-spooky-cute-art",
+    "cover_image": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80",
+    "content": "# My Journey Into Handmade Creations\n\nIt all started on a particularly cozy October evening. I was feeling the pull to create something with my hands, something that captured the magic I felt in the autumn air...\n\n## Finding My Style\n\nThe \"spooky-cute\" aesthetic just felt right. Not too scary, but definitely mystical. Like the friendly ghost who just wants to be your pal.\n\n## The Mental Health Connection\n\nCreating these pieces has become my meditation. Each snake I sculpt, each painting I make, is a moment of calm in a chaotic world.",
+    "status": "published",
+    "published_at": "2024-11-13T00:00:00.000Z",
+    "created_at": "2024-11-13T00:00:00.000Z",
+    "updated_at": "2024-11-13T00:00:00.000Z",
+    "tags": ["process", "behind_the_scenes"]
+  },
+  {
+    "id": "2",
+    "title": "The Meaning Behind Crystal Snakes",
+    "slug": "the-meaning-behind-crystal-snakes",
+    "cover_image": "https://images.unsplash.com/photo-1518967290816-0430902d6b41?w=800&q=80",
+    "content": "# Crystal Energy Meets Clay Art\n\nEach of my crystal snakes is made with intention. The gemstones aren't just decorative - they're chosen for their energetic properties...\n\n## Why Snakes?\n\nSnakes represent transformation, rebirth, and healing. They shed their skin and emerge renewed. What better symbol for personal growth?\n\n## Choosing Your Snake\n\nListen to your intuition when selecting a snake. Which gemstone calls to you? That's the one you need.",
+    "status": "published",
+    "published_at": "2024-11-06T00:00:00.000Z",
+    "created_at": "2024-11-06T00:00:00.000Z",
+    "updated_at": "2024-11-06T00:00:00.000Z",
+    "tags": ["process", "spirituality"]
+  },
+  {
+    "id": "3",
+    "title": "Behind the Scenes: My Studio Space",
+    "slug": "behind-the-scenes-my-studio-space",
+    "cover_image": "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=800&q=80",
+    "content": "# Welcome to My Creative Chaos\n\nMy studio is a mix of organized supplies and beautiful creative mess. Let me show you around...\n\n## Essential Tools\n\n- Polymer clay in every color imaginable\n- Tiny sculpting tools for details\n- A collection of gemstones that sparkles in the light\n- Paint brushes worn soft from use\n\n## The Vibe\n\nLots of plants, fairy lights, and candles burning. Music playing softly. This is where the magic happens.",
+    "status": "published",
+    "published_at": "2024-10-30T00:00:00.000Z",
+    "created_at": "2024-10-30T00:00:00.000Z",
+    "updated_at": "2024-10-30T00:00:00.000Z",
+    "tags": ["behind_the_scenes", "studio"]
+  }
+]

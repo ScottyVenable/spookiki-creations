@@ -37,20 +37,20 @@ export function useLocalStorage<T = string>(
   const setValue = useCallback(
     (value: T | ((oldValue?: T) => T)) => {
       try {
-        // Allow value to be a function so we have same API as useState
-        const valueToStore = typeof value === 'function' ? (value as (oldValue?: T) => T)(storedValue) : value
-        // Save state
-        setStoredValue(valueToStore)
-        // Save to local storage
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore))
-        }
+        setStoredValue((prevValue) => {
+          const valueToStore = typeof value === 'function'
+            ? (value as (oldValue?: T) => T)(prevValue)
+            : value
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore))
+          }
+          return valueToStore
+        })
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error)
       }
     },
-    [key, storedValue]
-  )
+    [key]
 
   // Function to delete the value from localStorage
   const deleteValue = useCallback(() => {

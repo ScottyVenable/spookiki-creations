@@ -10,7 +10,7 @@ import { FunnelSimple } from '@phosphor-icons/react'
 const BASE_PATH = '/spookiki-creations'
 
 export default function ShopPage() {
-  const [products] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
+  const [products] = useRepositoryData<Product>('./data/products.json', 'products')
   const [category, setCategory] = useState<ProductCategory | 'all'>('all')
   const [sortBy, setSortBy] = useState('newest')
   const [selectedTags, setSelectedTags] = useState<string[]>([])

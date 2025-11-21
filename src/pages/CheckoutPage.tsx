@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 
 export default function CheckoutPage() {
   const [cart, setCart] = useLocalStorage<CartItem[]>('cart', [])
-  const [orders, setOrders] = useLocalStorage<Order[]>('orders', [])
+  const [, setOrders] = useLocalStorage<Order[]>('orders', [])
   
   const [formData, setFormData] = useState({
     email: '',

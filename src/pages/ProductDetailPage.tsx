@@ -16,7 +16,7 @@ const BASE_PATH = '/spookiki-creations'
 
 export default function ProductDetailPage() {
   const [products] = useRepositoryData<Product>('/spookiki-creations/data/products.json', 'products')
-  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', [])
+  const [, setCart] = useLocalStorage<CartItem[]>('cart', [])
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 
 /**
  * A hook for managing data from repository JSON files with admin edits stored in localStorage.
@@ -63,7 +63,7 @@ export function useRepositoryData<T extends { id: string }>(
   }, [localStorageKey])
 
   // Merge repository data with local modifications
-  const mergedData = useCallback(() => {
+  const mergedData = useMemo(() => {
     if (isLoading) {
       return undefined
     }
@@ -95,21 +95,35 @@ export function useRepositoryData<T extends { id: string }>(
   const setValue = useCallback(
     (value: T[] | ((oldValue?: T[]) => T[])) => {
       try {
-        const currentMerged = mergedData()
-        const valueToStore = typeof value === 'function' 
-          ? (value as (oldValue?: T[]) => T[])(currentMerged) 
-          : value
+        setLocalData((prevLocalData) => {
+          // Compute merged data inline for the function call
+          const currentMerged = (() => {
+            if (isLoading) return undefined
+            const localMap = new Map(prevLocalData.map(item => [item.id, item]))
+            const merged: T[] = []
+            repoData.forEach(repoItem => {
+              const localItem = localMap.get(repoItem.id)
+              merged.push(localItem || repoItem)
+              if (localItem) localMap.delete(repoItem.id)
+            })
+            localMap.forEach(localItem => merged.push(localItem))
+            return merged
+          })()
+          
+          const valueToStore = typeof value === 'function' 
+            ? (value as (oldValue?: T[]) => T[])(currentMerged) 
+            : value
 
-        setLocalData(valueToStore)
-        
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(localStorageKey, JSON.stringify(valueToStore))
-        }
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(localStorageKey, JSON.stringify(valueToStore))
+          }
+          return valueToStore
+        })
       } catch (error) {
         console.error(`Error setting localStorage key "${localStorageKey}":`, error)
       }
     },
-    [localStorageKey, mergedData]
+    [localStorageKey, repoData, isLoading]
   )
 
   // Delete function clears localStorage modifications (reverts to repo data)
@@ -124,5 +138,5 @@ export function useRepositoryData<T extends { id: string }>(
     }
   }, [localStorageKey])
 
-  return [mergedData(), setValue, deleteValue] as const
+  return [mergedData, setValue, deleteValue] as const
 }

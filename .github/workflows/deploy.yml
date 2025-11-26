@@ -63,8 +63,8 @@ jobs:
             echo "✅ CNAME file exists in dist folder"
             cat ./dist/CNAME
           else
-            echo "❌ CNAME file not found - creating it"
-            echo "spookikicreations.store" > ./dist/CNAME
+            echo "❌ CNAME file not found - copying from public/CNAME"
+            cp public/CNAME ./dist/CNAME
           fi
 
       - name: Setup Pages

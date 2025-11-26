@@ -24,11 +24,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify CNAME configuration
+        id: cname
         run: |
           echo "🔍 Checking CNAME configuration..."
           if [ -f "public/CNAME" ]; then
             DOMAIN=$(cat public/CNAME | tr -d '[:space:]')
             echo "✅ CNAME file found with domain: $DOMAIN"
+            echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
           else
             echo "❌ CNAME file not found in public directory"
             exit 1
@@ -42,7 +44,7 @@ jobs:
 
       - name: Check HTTPS certificate status
         run: |
-          DOMAIN="spookikicreations.store"
+          DOMAIN="${{ steps.cname.outputs.domain }}"
           echo "🔐 Checking HTTPS certificate for $DOMAIN..."
           
           # Check if the domain resolves
@@ -80,13 +82,13 @@ jobs:
             echo ""
             echo "To enable HTTPS for custom domain:"
             echo "1. Go to repository Settings > Pages"
-            echo "2. Under Custom domain, verify domain is set to: spookikicreations.store"
+            echo "2. Under Custom domain, verify domain is set to: $DOMAIN"
             echo "3. Enable 'Enforce HTTPS' checkbox"
           fi
 
       - name: Check site accessibility
         run: |
-          DOMAIN="spookikicreations.store"
+          DOMAIN="${{ steps.cname.outputs.domain }}"
           echo "🌐 Checking site accessibility..."
           
           # Try HTTPS first
@@ -102,11 +104,12 @@ jobs:
 
       - name: Summary
         run: |
+          DOMAIN="${{ steps.cname.outputs.domain }}"
           echo ""
           echo "=========================================="
           echo "📋 HTTPS Certificate Status Summary"
           echo "=========================================="
-          echo "Domain: spookikicreations.store"
+          echo "Domain: $DOMAIN"
           echo ""
           echo "GitHub Pages automatically manages SSL certificates"
           echo "via Let's Encrypt for custom domains."

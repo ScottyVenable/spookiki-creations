@@ -92,12 +92,12 @@ const initializeFirebase = (): Database | null => {
 
 /**
  * Helper function to check if a value is "empty" for migration purposes
- * Empty means: null, undefined, empty array, or empty object
+ * Empty means: null, undefined, empty array, or empty object (non-array)
  */
 function isEmptyValue<T>(value: T): boolean {
   if (value === null || value === undefined) return true
-  if (Array.isArray(value) && value.length === 0) return true
-  if (typeof value === 'object' && Object.keys(value).length === 0) return true
+  if (Array.isArray(value)) return value.length === 0
+  if (typeof value === 'object') return Object.keys(value as object).length === 0
   return false
 }
 
@@ -133,6 +133,8 @@ export function useCloudStorage<T>(
   const [storedValue, setStoredValue] = useState<T>(initialValue)
   const dbRef = useRef<Database | null>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
+  // Use ref to avoid re-running effect when initialValue changes
+  const initialValueRef = useRef<T>(initialValue)
 
   // Sanitize key for Firebase (no dots, $, #, [, ], /)
   const sanitizedKey = key.replace(/[.#$[\]/]/g, '_')
@@ -175,7 +177,7 @@ export function useCloudStorage<T>(
             setStoredValue(localData as T)
           } else {
             // No data anywhere - use initial value
-            setStoredValue(initialValue)
+            setStoredValue(initialValueRef.current)
           }
         }
       }, (error) => {
@@ -198,7 +200,7 @@ export function useCloudStorage<T>(
       if (localData !== null) {
         setStoredValue(localData)
       } else {
-        setStoredValue(initialValue)
+        setStoredValue(initialValueRef.current)
       }
     }
 
@@ -208,7 +210,7 @@ export function useCloudStorage<T>(
         unsubscribeRef.current()
       }
     }
-  }, [sanitizedKey, key, initialValue])
+  }, [sanitizedKey, key])
 
   // Save function that writes to both Firebase and localStorage
   const setValue = useCallback((value: SetValue<T>) => {

@@ -2,14 +2,14 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { CartItem } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
 import { Trash, Plus, Minus, ArrowRight, ShoppingBag } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 export default function CartPage() {
-  const [cart, setCart] = useKV<CartItem[]>('cart', [])
+  const [cart, setCart] = useCloudStorage<CartItem[]>('cart', [])
 
   const safeCart = cart || []
 

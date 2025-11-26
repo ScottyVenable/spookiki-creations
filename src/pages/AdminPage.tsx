@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Order, Product } from '@/lib/types'
 import type { NewsletterSubscriber } from '@/lib/notifications'
@@ -16,9 +16,9 @@ import { VisualEditor } from '@/components/VisualEditor'
 import { toast } from 'sonner'
 
 export default function AdminPage() {
-  const [orders] = useKV<Order[]>('orders', [])
-  const [products] = useKV<Product[]>('products', [])
-  const [subscribers] = useKV<NewsletterSubscriber[]>('newsletter_subscribers', [])
+  const [orders] = useCloudStorage<Order[]>('orders', [])
+  const [products] = useCloudStorage<Product[]>('products', [])
+  const [subscribers] = useCloudStorage<NewsletterSubscriber[]>('newsletter_subscribers', [])
   const { currentUser, isAdmin, logout } = useAuth()
 
   useEffect(() => {

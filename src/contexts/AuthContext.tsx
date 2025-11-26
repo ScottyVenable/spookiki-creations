@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { AuthUser } from '@/lib/auth'
 import { authenticateUser, INITIAL_USERS, hashPassword } from '@/lib/auth'
 
@@ -21,8 +21,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentSession, setCurrentSession] = useKV<string | null>('current-user-session', null)
-  const [userCredentials, setUserCredentials] = useKV<Record<string, UserCredentials>>('user-credentials', {})
+  const [currentSession, setCurrentSession] = useCloudStorage<string | null>('current-user-session', null)
+  const [userCredentials, setUserCredentials] = useCloudStorage<Record<string, UserCredentials>>('user-credentials', {})
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
 
   useEffect(() => {

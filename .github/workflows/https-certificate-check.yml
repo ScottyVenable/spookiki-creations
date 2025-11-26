@@ -1,0 +1,121 @@
+name: HTTPS Certificate Check
+
+on:
+  # Run weekly to verify certificate status
+  schedule:
+    - cron: '0 0 * * 0'
+  # Allow manual triggering
+  workflow_dispatch:
+  # Run when deployment workflow completes
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  verify-https:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify CNAME configuration
+        run: |
+          echo "🔍 Checking CNAME configuration..."
+          if [ -f "public/CNAME" ]; then
+            DOMAIN=$(cat public/CNAME | tr -d '[:space:]')
+            echo "✅ CNAME file found with domain: $DOMAIN"
+          else
+            echo "❌ CNAME file not found in public directory"
+            exit 1
+          fi
+
+      - name: Wait for DNS propagation
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "⏳ Waiting 30 seconds for DNS propagation..."
+          sleep 30
+
+      - name: Check HTTPS certificate status
+        run: |
+          DOMAIN="spookikicreations.store"
+          echo "🔐 Checking HTTPS certificate for $DOMAIN..."
+          
+          # Check if the domain resolves
+          echo "📡 Checking DNS resolution..."
+          if nslookup "$DOMAIN" >/dev/null 2>&1; then
+            echo "✅ DNS resolution successful"
+          else
+            echo "⚠️  DNS resolution pending - domain may not be configured yet"
+            echo "Please ensure DNS records are configured:"
+            echo "  - A record pointing to GitHub Pages IPs"
+            echo "  - Or CNAME record pointing to your GitHub Pages URL"
+            exit 0
+          fi
+          
+          # Check SSL certificate
+          echo "🔒 Checking SSL certificate..."
+          CERT_INFO=$(echo | timeout 10 openssl s_client -connect "$DOMAIN:443" -servername "$DOMAIN" 2>/dev/null | openssl x509 -noout -dates -issuer 2>/dev/null) || true
+          
+          if [ -n "$CERT_INFO" ]; then
+            echo "✅ SSL certificate found:"
+            echo "$CERT_INFO"
+            
+            # Check certificate expiration
+            EXPIRY=$(echo "$CERT_INFO" | grep "notAfter" | cut -d= -f2)
+            echo "📅 Certificate expires: $EXPIRY"
+            
+            # Check if certificate is from Let's Encrypt (GitHub's provider)
+            if echo "$CERT_INFO" | grep -qi "Let's Encrypt\|DigiCert"; then
+              echo "✅ Certificate provider verified (Let's Encrypt/DigiCert via GitHub)"
+            fi
+          else
+            echo "⚠️  SSL certificate not yet available"
+            echo "GitHub Pages will automatically provision a Let's Encrypt certificate"
+            echo "This may take a few minutes after DNS configuration"
+            echo ""
+            echo "To enable HTTPS for custom domain:"
+            echo "1. Go to repository Settings > Pages"
+            echo "2. Under Custom domain, verify domain is set to: spookikicreations.store"
+            echo "3. Enable 'Enforce HTTPS' checkbox"
+          fi
+
+      - name: Check site accessibility
+        run: |
+          DOMAIN="spookikicreations.store"
+          echo "🌐 Checking site accessibility..."
+          
+          # Try HTTPS first
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$DOMAIN" --max-time 10 2>/dev/null) || HTTP_STATUS="000"
+          
+          if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "301" ] || [ "$HTTP_STATUS" = "302" ]; then
+            echo "✅ Site is accessible via HTTPS (Status: $HTTP_STATUS)"
+          elif [ "$HTTP_STATUS" = "000" ]; then
+            echo "⚠️  Could not connect to site - DNS may not be configured yet"
+          else
+            echo "⚠️  Site returned status code: $HTTP_STATUS"
+          fi
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "📋 HTTPS Certificate Status Summary"
+          echo "=========================================="
+          echo "Domain: spookikicreations.store"
+          echo ""
+          echo "GitHub Pages automatically manages SSL certificates"
+          echo "via Let's Encrypt for custom domains."
+          echo ""
+          echo "Requirements for HTTPS to work:"
+          echo "1. ✅ CNAME file present in repository"
+          echo "2. DNS configured to point to GitHub Pages"
+          echo "3. 'Enforce HTTPS' enabled in repository settings"
+          echo ""
+          echo "If certificate issues persist, visit:"
+          echo "https://github.com/${{ github.repository }}/settings/pages"
+          echo "=========================================="

@@ -2,6 +2,33 @@
 
 This repository is configured to automatically deploy to GitHub Pages whenever changes are pushed to the `main` branch.
 
+## Custom Domain Configuration
+
+This site is configured to use the custom domain: **spookikicreations.store**
+
+### HTTPS Certificate
+
+GitHub Pages automatically provisions and renews Let's Encrypt SSL certificates for custom domains. The certificate is managed by GitHub and requires no manual intervention.
+
+### DNS Configuration
+
+To complete the custom domain setup, configure your DNS provider with the following records:
+
+**Option 1: Apex domain (recommended)**
+Add these A records pointing to GitHub Pages:
+```
+185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153
+```
+
+**Option 2: CNAME record**
+Add a CNAME record pointing to:
+```
+<username>.github.io
+```
+
 ## Setup Instructions
 
 To enable GitHub Pages for this repository, follow these steps:
@@ -22,16 +49,18 @@ To enable GitHub Pages for this repository, follow these steps:
      - Manually trigger it from the "Actions" tab
 
 4. **Access Your Site**
-   - Once deployed, your site will be available at:
+   - Once deployed and DNS configured, your site will be available at:
      ```
-     https://<username>.github.io/spookiki-creations/
+     https://spookikicreations.store/
      ```
-   - Replace `<username>` with your GitHub username
+   - **Note**: The default GitHub Pages URL (`https://<username>.github.io/spookiki-creations/`) is not supported with this custom domain configuration.
 
 ## Files Added for GitHub Pages
 
 - **`.github/workflows/deploy.yml`**: GitHub Actions workflow that builds and deploys the site
-- **`vite.config.ts`**: Updated with `base: '/spookiki-creations/'` for correct asset paths
+- **`.github/workflows/https-certificate-check.yml`**: Workflow that verifies HTTPS certificate status
+- **`public/CNAME`**: Custom domain configuration file (spookikicreations.store)
+- **`vite.config.ts`**: Configured with `base: '/'` for custom domain compatibility
 
 ## Manual Deployment
 

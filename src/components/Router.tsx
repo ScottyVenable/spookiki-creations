@@ -37,6 +37,16 @@ export function Router() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
   useEffect(() => {
+    // Handle redirect from 404.html for SPA routing on GitHub Pages
+    const redirectPath = sessionStorage.getItem('redirectPath')
+    if (redirectPath && redirectPath !== '/') {
+      sessionStorage.removeItem('redirectPath')
+      window.history.replaceState(null, '', redirectPath)
+      setCurrentPath(redirectPath)
+    }
+  }, [])
+
+  useEffect(() => {
     const handlePopState = () => {
       setCurrentPath(window.location.pathname)
     }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spookiki Creations</title>
+    <script>
+        // Single Page App routing fix for GitHub Pages
+        // This script redirects 404s to the main page while preserving the path
+        // The path is stored in sessionStorage and picked up by the main app
+        const path = window.location.pathname + window.location.search + window.location.hash;
+        sessionStorage.setItem('redirectPath', path);
+        window.location.replace('/');
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>

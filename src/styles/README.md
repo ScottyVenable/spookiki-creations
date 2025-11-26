@@ -81,30 +81,41 @@ Base unit: **4px**
 
 ## 🎭 CSS Variables Structure
 
+The theme uses Radix UI color scales and Tailwind CSS variables:
+
 ```css
-:root {
-  /* Colors */
-  --background: 246 244 240;      /* F6F4F0 */
-  --foreground: 85 85 85;         /* 555555 */
-  --primary: 122 104 127;         /* 7A687F */
-  --primary-foreground: 255 255 255;
-  --secondary: 150 221 206;       /* 96DDCE */
-  --secondary-foreground: 45 45 45;
-  --accent: 232 165 165;          /* E8A5A5 */
-  --accent-foreground: 45 45 45;
-  --muted: 203 195 227;           /* CBC3E3 */
-  --muted-foreground: 61 61 61;
-  --card: 255 255 255;
-  --card-foreground: 85 85 85;
+#spark-app {
+  /* Neutral colors - based on Slate scale */
+  --color-neutral-1 to --color-neutral-12
+  --color-neutral-a1 to --color-neutral-a12 /* Alpha variants */
   
-  /* Borders & Radius */
-  --border: 229 231 235;
-  --radius: 0.5rem;
+  /* Accent colors - based on Blue scale */
+  --color-accent-1 to --color-accent-12
+  
+  /* Secondary accent - based on Violet scale */
+  --color-accent-secondary-1 to --color-accent-secondary-12
+  
+  /* Foreground colors */
+  --color-fg: var(--color-neutral-12);
+  --color-fg-secondary: var(--color-neutral-a11);
+  
+  /* Background colors */
+  --color-bg: #ffffff;
+  --color-bg-inset: var(--color-neutral-2);
+  --color-bg-overlay: #ffffff;
   
   /* Focus ring */
-  --ring: 122 104 127;
+  --color-focus-ring: var(--color-accent-9);
+  
+  /* Border radius scale */
+  --radius-sm, --radius-md, --radius-lg, --radius-xl, --radius-2xl
+  
+  /* Size/spacing scale */
+  --size-0 through --size-96
 }
 ```
+
+The theme also imports all Radix UI color palettes for flexibility.
 
 ## 🔧 Usage in Components
 
@@ -187,7 +198,6 @@ Typography adjusts for mobile viewports:
 - `src/main.css` - Main stylesheet
 - `tailwind.config.js` - Tailwind configuration
 - `components.json` - shadcn/ui configuration
-- `theme.json` - Theme metadata
 
 ## 🔗 Resources
 

@@ -4,7 +4,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { BlogCard } from '@/components/BlogCard'
 import { Link } from '@/components/Link'
 import { ArrowRight, Sparkle } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { Product, BlogPost } from '@/lib/types'
 import { sampleProducts, sampleBlogPosts } from '@/lib/data'
 import { useEffect, useState } from 'react'
@@ -12,9 +12,9 @@ import type { NewsletterSubscriber } from '@/lib/notifications'
 import { toast } from 'sonner'
 
 export default function HomePage() {
-  const [products, setProducts] = useKV<Product[]>('products', [])
-  const [blogPosts, setBlogPosts] = useKV<BlogPost[]>('blog_posts', [])
-  const [subscribers, setSubscribers] = useKV<NewsletterSubscriber[]>('newsletter_subscribers', [])
+  const [products, setProducts] = useCloudStorage<Product[]>('products', [])
+  const [blogPosts, setBlogPosts] = useCloudStorage<BlogPost[]>('blog_posts', [])
+  const [subscribers, setSubscribers] = useCloudStorage<NewsletterSubscriber[]>('newsletter_subscribers', [])
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
 

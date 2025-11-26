@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Link } from './Link'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { NewsletterSubscriber } from '@/lib/notifications'
 import { toast } from 'sonner'
 
 export function Footer() {
-  const [subscribers, setSubscribers] = useKV<NewsletterSubscriber[]>('newsletter_subscribers', [])
+  const [subscribers, setSubscribers] = useCloudStorage<NewsletterSubscriber[]>('newsletter_subscribers', [])
   const [email, setEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
 
@@ -111,7 +111,7 @@ export function Footer() {
 
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 Spookiki Creations. Handmade with love in Maine. ✨
+            © {new Date().getFullYear()} Spookiki Creations. Handmade with love in Maine. ✨
           </p>
           <div className="flex gap-6">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

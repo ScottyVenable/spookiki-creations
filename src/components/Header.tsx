@@ -3,12 +3,12 @@ import { Link } from './Link'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import { useAuth } from '@/contexts/AuthContext'
 import type { CartItem } from '@/lib/types'
 
 export function Header() {
-  const [cart] = useKV<CartItem[]>('cart', [])
+  const [cart] = useCloudStorage<CartItem[]>('cart', [])
   const { currentUser, logout, isAdmin } = useAuth()
   const cartItemCount = (cart || []).reduce((sum, item) => sum + item.quantity, 0)
 

@@ -17,7 +17,7 @@ const FAQPage = lazy(() => import('@/pages/FAQPage'))
 const AccountPage = lazy(() => import('@/pages/AccountPage'))
 const AdminPage = lazy(() => import('@/pages/AdminPage'))
 
-const BASE_PATH = '/spookiki-creations'
+const BASE_PATH = ''
 
 // Loading component for Suspense fallback
 function PageLoader() {

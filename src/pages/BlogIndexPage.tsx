@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { BlogCard } from '@/components/BlogCard'
 import { Badge } from '@/components/ui/badge'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { BlogPost } from '@/lib/types'
 import { sampleBlogPosts } from '@/lib/data'
 
 export default function BlogIndexPage() {
-  const [blogPosts] = useKV<BlogPost[]>('blog_posts', sampleBlogPosts)
+  const [blogPosts] = useCloudStorage<BlogPost[]>('blog_posts', sampleBlogPosts)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
   const posts = (blogPosts || sampleBlogPosts).filter(p => p.status === 'published')

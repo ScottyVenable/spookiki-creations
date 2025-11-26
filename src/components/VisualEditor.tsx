@@ -27,7 +27,7 @@ import {
   Trash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import { v4 as uuidv4 } from 'uuid'
 import { ImageUploader } from '@/components/ImageUploader'
 
@@ -158,7 +158,7 @@ const defaultSections: PageSection[] = [
 ]
 
 export function VisualEditor() {
-  const [editorState, setEditorState] = useKV<VisualEditorState>('visual-editor-state', {
+  const [editorState, setEditorState] = useCloudStorage<VisualEditorState>('visual-editor-state', {
     sections: defaultSections,
     selectedElement: null,
     previewMode: 'desktop',

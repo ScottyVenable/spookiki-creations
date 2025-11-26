@@ -103,7 +103,8 @@ See the README.md in each folder for detailed documentation.
 ### State Management
 - **React Context** - Global state (Auth, Mobile Optimization)
 - **React Query** - Server state management
-- **Local Storage** - Data persistence
+- **Firebase Realtime Database** - Cloud data sync (free tier)
+- **Local Storage** - Offline fallback
 
 ### Additional Libraries
 - **Framer Motion** - Animations
@@ -127,11 +128,25 @@ Your site will be available at: `https://<username>.github.io/spookiki-creations
 
 See [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md) for detailed instructions.
 
+### ☁️ Cloud Storage (Optional)
+
+For cross-device data sync (products, orders, cart), set up free Firebase:
+
+1. Create a free Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable Realtime Database
+3. Copy your config to `.env` (see `.env.example`)
+4. Run `npm install` to get Firebase package
+
+See [CLOUD_STORAGE_SETUP.md](./CLOUD_STORAGE_SETUP.md) for detailed instructions.
+
+**Without Firebase:** The app works perfectly with localStorage (no cross-device sync).
+
 ## 📚 Documentation
 
 | Document | Description |
 |----------|-------------|
 | [PRD.md](./PRD.md) | Product Requirements Document |
+| [CLOUD_STORAGE_SETUP.md](./CLOUD_STORAGE_SETUP.md) | Free cloud storage setup guide |
 | [ADMIN_GUIDE.md](./ADMIN_GUIDE.md) | Complete admin user manual |
 | [ADMIN_FEATURES.md](./ADMIN_FEATURES.md) | Admin feature summary |
 | [ADMIN_TESTING.md](./ADMIN_TESTING.md) | Admin testing checklist |

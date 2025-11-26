@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { CartItem, Order, PaymentMethod } from '@/lib/types'
 import { formatPrice, generateOrderId } from '@/lib/data'
 import { CreditCard } from '@phosphor-icons/react'
@@ -14,8 +14,8 @@ import { toast } from 'sonner'
 import { sendOrderNotification } from '@/lib/notifications'
 
 export default function CheckoutPage() {
-  const [cart, setCart] = useKV<CartItem[]>('cart', [])
-  const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const [cart, setCart] = useCloudStorage<CartItem[]>('cart', [])
+  const [orders, setOrders] = useCloudStorage<Order[]>('orders', [])
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [formData, setFormData] = useState({

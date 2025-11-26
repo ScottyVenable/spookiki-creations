@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { OrderStatusBadge } from '@/components/OrderStatusBadge'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Order } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
@@ -14,7 +14,7 @@ import { Package, User, ShoppingBag, SignIn, LockKey } from '@phosphor-icons/rea
 import { toast } from 'sonner'
 
 export default function AccountPage() {
-  const [orders] = useKV<Order[]>('orders', [])
+  const [orders] = useCloudStorage<Order[]>('orders', [])
   const { currentUser, login, logout, changePassword } = useAuth()
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')

@@ -2,12 +2,12 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { OrderStatusBadge } from '@/components/OrderStatusBadge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { Order, OrderStatus } from '@/lib/types'
 import { formatPrice } from '@/lib/data'
 
 export function AdminOrdersTab() {
-  const [orders, setOrders] = useKV<Order[]>('orders', [])
+  const [orders, setOrders] = useCloudStorage<Order[]>('orders', [])
 
   const allOrders = orders || []
 

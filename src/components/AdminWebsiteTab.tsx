@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import { Palette, FileText, Image as ImageIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -28,7 +28,7 @@ interface WebsiteSettings {
 }
 
 export function AdminWebsiteTab() {
-  const [settings, setSettings] = useKV<WebsiteSettings>('website-settings', {})
+  const [settings, setSettings] = useCloudStorage<WebsiteSettings>('website-settings', {})
   const [formData, setFormData] = useState<WebsiteSettings>({})
 
   useEffect(() => {

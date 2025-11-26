@@ -14,6 +14,7 @@
     "dependencies": {
         "@github/spark": "^0.39.0",
         "@heroicons/react": "^2.2.0",
+        "firebase": "^11.0.1",
         "@hookform/resolvers": "^5.2.2",
         "@octokit/core": "^6.1.4",
         "@phosphor-icons/react": "^2.1.7",

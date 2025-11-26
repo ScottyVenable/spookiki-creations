@@ -6,7 +6,7 @@ interface LinkProps {
   className?: string
 }
 
-const BASE_PATH = '/spookiki-creations'
+const BASE_PATH = ''
 
 export function Link({ href, children, className = '' }: LinkProps) {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

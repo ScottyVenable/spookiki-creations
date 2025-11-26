@@ -3,15 +3,15 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { OrderStatusBadge } from '@/components/OrderStatusBadge'
 import { Link } from '@/components/Link'
-import { useKV } from '@github/spark/hooks'
+import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { Order } from '@/lib/types'
 import { formatPrice, getPaymentInstructions } from '@/lib/data'
 import { CheckCircle, Package, ArrowRight } from '@phosphor-icons/react'
 
-const BASE_PATH = '/spookiki-creations'
+const BASE_PATH = ''
 
 export default function OrderConfirmationPage() {
-  const [orders] = useKV<Order[]>('orders', [])
+  const [orders] = useCloudStorage<Order[]>('orders', [])
 
   const pathname = window.location.pathname.replace(BASE_PATH, '')
   const orderId = pathname.split('/order/')[1]?.split('/')[0]

@@ -49,14 +49,11 @@ To enable GitHub Pages for this repository, follow these steps:
      - Manually trigger it from the "Actions" tab
 
 4. **Access Your Site**
-   - Once deployed, your site will be available at:
+   - Once deployed and DNS configured, your site will be available at:
      ```
      https://spookikicreations.store/
      ```
-   - Or via the default GitHub Pages URL:
-     ```
-     https://<username>.github.io/spookiki-creations/
-     ```
+   - **Note**: The default GitHub Pages URL (`https://<username>.github.io/spookiki-creations/`) is not supported with this custom domain configuration.
 
 ## Files Added for GitHub Pages
 

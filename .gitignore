@@ -35,3 +35,6 @@ pids
 
 # Test screenshots
 test-screenshots/
+
+# Private documentation (contains sensitive info like credentials)
+docs/private/

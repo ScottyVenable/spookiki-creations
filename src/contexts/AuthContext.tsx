@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, ReactNode, useEffect, useState, useRef, useCallback } from 'react'
 import { useCloudStorage } from '@/hooks/useCloudStorage'
 import type { AuthUser } from '@/lib/auth'
 import { INITIAL_USERS, hashPassword } from '@/lib/auth'
@@ -21,12 +21,46 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Session storage key - stored in localStorage only (per-browser, NOT synced to cloud)
+const SESSION_KEY = 'spookiki-user-session'
+
+// Helper to get session from localStorage only
+function getLocalSession(): string | null {
+  try {
+    return localStorage.getItem(SESSION_KEY)
+  } catch {
+    return null
+  }
+}
+
+// Helper to set session in localStorage only
+function setLocalSession(username: string | null): void {
+  try {
+    if (username) {
+      localStorage.setItem(SESSION_KEY, username)
+    } else {
+      localStorage.removeItem(SESSION_KEY)
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentSession, setCurrentSession] = useCloudStorage<string | null>('current-user-session', null)
+  // User credentials are synced to cloud (shared across devices for password changes)
   const [userCredentials, setUserCredentials] = useCloudStorage<Record<string, UserCredentials>>('user-credentials', {})
+  
+  // Session is LOCAL only - each browser has its own login session
+  const [currentSession, setCurrentSession] = useState<string | null>(getLocalSession)
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const hasInitialized = useRef(false)
+  
+  // Wrapper to update both state and localStorage
+  const updateSession = useCallback((username: string | null) => {
+    setLocalSession(username)
+    setCurrentSession(username)
+  }, [])
 
   // Initialize users from INITIAL_USERS env config
   useEffect(() => {
@@ -86,13 +120,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
       } else {
         // Session exists but no matching credentials - clear it
-        setCurrentSession(null)
+        updateSession(null)
         setCurrentUser(null)
       }
     } else if (!currentSession) {
       setCurrentUser(null)
     }
-  }, [currentSession, userCredentials, setCurrentSession])
+  }, [currentSession, userCredentials, updateSession])
 
   const login = (username: string, password: string): boolean => {
     console.log(`Login attempt for user: ${username}`)
@@ -122,8 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           [username]: newCred
         }))
         
-        // Set session
-        setCurrentSession(username)
+        // Set session (local only - each browser has its own session)
+        updateSession(username)
         console.log(`Login successful for ${username} (initial login)`)
         return true
       }
@@ -143,14 +177,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false
     }
     
-    setCurrentSession(username)
+    updateSession(username)
     console.log(`Login successful for ${username}`)
     return true
   }
 
   const logout = () => {
     console.log('Logging out')
-    setCurrentSession(null)
+    updateSession(null)
     setCurrentUser(null)
   }
 

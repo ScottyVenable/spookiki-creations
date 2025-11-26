@@ -72,16 +72,20 @@ export function useLocalStorage<T = string>(
     }
     
     const handleStorageChange = (e: StorageEvent) => {
-      // Handle both specific key changes and localStorage.clear()
-      if (e.key === null || e.key === key) {
-        if (e.key === key && e.newValue !== null) {
+      // Make the three distinct cases explicit
+      if (e.key === null) {
+        // localStorage.clear() was called
+        setStoredValue(undefined)
+      } else if (e.key === key) {
+        if (e.newValue !== null) {
+          // Key was updated
           try {
             setStoredValue(JSON.parse(e.newValue))
           } catch (error) {
             console.error(`Error parsing storage event for key "${key}":`, error)
           }
         } else {
-          // Either localStorage.clear() (e.key === null) or this key was removed (e.newValue === null)
+          // Key was removed
           setStoredValue(undefined)
         }
       }

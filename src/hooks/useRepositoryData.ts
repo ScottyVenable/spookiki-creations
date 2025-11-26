@@ -62,6 +62,29 @@ export function useRepositoryData<T extends { id: string }>(
     }
   }, [localStorageKey])
 
+  // Listen for localStorage changes in other tabs and update localData
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === localStorageKey) {
+        try {
+          if (event.newValue !== null) {
+            setLocalData(JSON.parse(event.newValue))
+          } else {
+            setLocalData([])
+          }
+        } catch (error) {
+          console.error(`Error parsing localStorage key "${localStorageKey}" from storage event:`, error)
+        }
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [localStorageKey])
   // Merge repository data with local modifications
   const mergedData = useMemo(() => {
     if (isLoading) {

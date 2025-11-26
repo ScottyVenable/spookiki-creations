@@ -153,7 +153,37 @@ The `useCloudStorage` hook in `src/hooks/useCloudStorage.ts` provides:
 1. **Automatic Firebase sync** when configured
 2. **localStorage fallback** when Firebase is not configured or unavailable
 3. **Real-time updates** across all connected devices
-4. **Same API as useKV** - just change the import!
+4. **Automatic data migration** - existing localStorage data is automatically migrated to Firebase on first connection
+5. **Same API as useKV** - just change the import!
+
+### Data Synchronization
+
+When Firebase is properly configured:
+- **All data changes are instantly synced** to Firebase Realtime Database
+- **All connected devices receive real-time updates** when data changes
+- **localStorage is kept in sync** as a backup for offline access
+- **Existing localStorage data is automatically migrated** to Firebase when you first connect
+
+This means:
+- User logins and account creations sync across devices
+- Admin product edits appear instantly on all devices
+- Orders placed on any device are visible everywhere
+- Cart data syncs when logged in (using the same browser session)
+
+### Data Types Synced
+
+The following data is automatically synced through Firebase:
+
+| Data Type | Storage Key | Description |
+|-----------|-------------|-------------|
+| Products | `products` | All product catalog data |
+| Orders | `orders` | Customer orders and status |
+| Shopping Cart | `cart` | Items in the shopping cart |
+| User Credentials | `user-credentials` | User account information |
+| User Session | `current-user-session` | Current logged-in user |
+| Website Settings | `website-settings` | Site configuration |
+| Newsletter Subscribers | `newsletter_subscribers` | Email subscriber list |
+| Blog Posts | `blog_posts` | Blog content |
 
 ### Usage Example
 

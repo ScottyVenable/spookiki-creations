@@ -5,6 +5,12 @@
  * 1. Firebase Realtime Database (cloud sync) - when configured
  * 2. localStorage (fallback) - for offline/development
  * 
+ * Features:
+ * - Real-time sync across all devices when Firebase is configured
+ * - Automatic migration of localStorage data to Firebase on first connection
+ * - localStorage backup for offline access
+ * - Seamless fallback when Firebase is unavailable
+ * 
  * Free tier limits (Firebase Spark Plan):
  * - 1 GB storage
  * - 10 GB/month data transfer
@@ -48,6 +54,9 @@ const isFirebaseConfigured = (): boolean => {
 let firebaseApp: FirebaseApp | null = null
 let database: Database | null = null
 
+// Track which keys have been migrated to avoid duplicate migrations
+const migratedKeys = new Set<string>()
+
 // Initialize Firebase only once
 const initializeFirebase = (): Database | null => {
   if (!isFirebaseConfigured()) {
@@ -81,6 +90,32 @@ const initializeFirebase = (): Database | null => {
   return database
 }
 
+/**
+ * Helper function to check if a value is "empty" for migration purposes
+ * Empty means: null, undefined, empty array, or empty object (non-array)
+ */
+function isEmptyValue<T>(value: T): boolean {
+  if (value === null || value === undefined) return true
+  if (Array.isArray(value)) return value.length === 0
+  if (typeof value === 'object') return Object.keys(value as object).length === 0
+  return false
+}
+
+/**
+ * Helper function to get data from localStorage
+ */
+function getLocalStorageData<T>(sanitizedKey: string): T | null {
+  try {
+    const item = localStorage.getItem(`spookiki_${sanitizedKey}`)
+    if (item !== null) {
+      return JSON.parse(item) as T
+    }
+  } catch (error) {
+    console.warn(`Error reading localStorage for ${sanitizedKey}:`, error)
+  }
+  return null
+}
+
 // Type for the setter function to match React's useState pattern
 type SetValue<T> = T | ((prev: T) => T)
 
@@ -96,12 +131,13 @@ export function useCloudStorage<T>(
   initialValue: T
 ): [T, (value: SetValue<T>) => void] {
   const [storedValue, setStoredValue] = useState<T>(initialValue)
-  const [isInitialized, setIsInitialized] = useState(false)
   const dbRef = useRef<Database | null>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
+  // Use ref to avoid re-running effect when initialValue changes
+  const initialValueRef = useRef<T>(initialValue)
 
   // Sanitize key for Firebase (no dots, $, #, [, ], /)
-  const sanitizedKey = key.replace(/[.#$\[\]\/]/g, '_')
+  const sanitizedKey = key.replace(/[.#$[\]/]/g, '_')
 
   // Initialize and subscribe to Firebase or localStorage
   useEffect(() => {
@@ -113,17 +149,40 @@ export function useCloudStorage<T>(
       const dataRef = ref(db, `spookiki/${sanitizedKey}`)
       
       const unsubscribe = onValue(dataRef, (snapshot) => {
-        const data = snapshot.val()
-        if (data !== null) {
-          setStoredValue(data)
+        const firebaseData = snapshot.val()
+        
+        if (firebaseData !== null) {
+          // Firebase has data - use it and sync to localStorage
+          setStoredValue(firebaseData)
+          // Keep localStorage in sync with Firebase
+          try {
+            localStorage.setItem(`spookiki_${sanitizedKey}`, JSON.stringify(firebaseData))
+          } catch (error) {
+            console.warn(`Error syncing to localStorage for ${key}:`, error)
+          }
         } else {
-          // No data in Firebase, use initial value
-          setStoredValue(initialValue)
+          // Firebase has no data - check if we should migrate from localStorage
+          const localData = getLocalStorageData<T>(sanitizedKey)
+          
+          if (!isEmptyValue(localData) && !migratedKeys.has(sanitizedKey)) {
+            // Migrate localStorage data to Firebase
+            migratedKeys.add(sanitizedKey)
+            console.info(`Migrating localStorage data to Firebase for key: ${key}`)
+            set(dataRef, localData).then(() => {
+              console.info(`Successfully migrated ${key} to Firebase`)
+            }).catch(error => {
+              console.warn(`Failed to migrate ${key} to Firebase:`, error)
+              migratedKeys.delete(sanitizedKey)
+            })
+            setStoredValue(localData as T)
+          } else {
+            // No data anywhere - use initial value
+            setStoredValue(initialValueRef.current)
+          }
         }
-        setIsInitialized(true)
       }, (error) => {
         console.warn(`Firebase read error for ${key}:`, error)
-        // Fallback to localStorage
+        // Fallback to localStorage on Firebase error
         loadFromLocalStorage()
       })
 
@@ -137,18 +196,12 @@ export function useCloudStorage<T>(
     }
 
     function loadFromLocalStorage() {
-      try {
-        const item = localStorage.getItem(`spookiki_${sanitizedKey}`)
-        if (item !== null) {
-          setStoredValue(JSON.parse(item))
-        } else {
-          setStoredValue(initialValue)
-        }
-      } catch (error) {
-        console.warn(`Error reading localStorage for ${key}:`, error)
-        setStoredValue(initialValue)
+      const localData = getLocalStorageData<T>(sanitizedKey)
+      if (localData !== null) {
+        setStoredValue(localData)
+      } else {
+        setStoredValue(initialValueRef.current)
       }
-      setIsInitialized(true)
     }
 
     // Cleanup subscription on unmount
@@ -157,7 +210,7 @@ export function useCloudStorage<T>(
         unsubscribeRef.current()
       }
     }
-  }, [sanitizedKey]) // Only re-run if key changes
+  }, [sanitizedKey, key])
 
   // Save function that writes to both Firebase and localStorage
   const setValue = useCallback((value: SetValue<T>) => {

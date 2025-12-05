@@ -7,10 +7,64 @@ This directory contains custom React hooks for reusable logic across the applica
 ```
 hooks/
 ├── use-mobile.ts                  # Mobile device detection
-└── use-mobile-optimizations.ts    # Mobile optimization utilities
+├── use-mobile-optimizations.ts    # Mobile optimization utilities
+└── useCloudStorage.ts             # Firebase/localStorage sync hook
 ```
 
 ## 📄 Hook Descriptions
+
+### useCloudStorage.ts
+
+Provides cross-device synchronized storage using Firebase Realtime Database with localStorage fallback.
+
+**Usage:**
+```tsx
+import { useCloudStorage } from '@/hooks/useCloudStorage'
+
+function MyComponent() {
+  const [products, setProducts] = useCloudStorage<Product[]>('products', [])
+  
+  const handleAddProduct = (product: Product) => {
+    setProducts(current => [...current, product])
+  }
+  
+  return (
+    <div>
+      {products.map(p => <ProductCard key={p.id} product={p} />)}
+    </div>
+  )
+}
+```
+
+**Features:**
+- Real-time sync across all devices when Firebase is configured
+- Automatic migration of localStorage data to Firebase on first connection
+- localStorage backup for offline access
+- Seamless fallback when Firebase is unavailable
+- Same API as React's useState
+
+**Configuration:**
+Set these environment variables in `.env`:
+```
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+VITE_FIREBASE_PROJECT_ID=your-project
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abc123
+```
+
+**Data Synced:**
+- Products catalog
+- Customer orders
+- Shopping cart
+- User credentials
+- Website settings
+- Newsletter subscribers
+- Blog posts
+
+See [Cloud Storage Setup Guide](../../docs/setup/CLOUD_STORAGE.md) for detailed setup instructions.
 
 ### use-mobile.ts
 
